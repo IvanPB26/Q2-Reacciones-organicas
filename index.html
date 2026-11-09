@@ -794,7 +794,7 @@ function nextCla(){
   document.getElementById('bSkip').onclick=()=>{st.queue.push(x);nextCla()};
   document.getElementById('bChk').onclick=()=>{
     const want={gT:x.t,gR:x.rg,gC:condOf(x)}; let all=true, msgs=[];
-    for(const g of ['gT','gR','gC']){ const s=document.querySelector('#'+g+' .opt.sel'); if(!s){all=false;msgs.push('Te falta elegir una opción en '+({gT:'tipo',gR:'regla',gC:'catalizador'})[g]+'.');continue}
+    for(const g of ['gT','gR','gC']){ if(document.querySelector('#'+g+' .opt.good'))continue; const s=document.querySelector('#'+g+' .opt.sel'); if(!s){all=false;msgs.push('Te falta elegir una opción en '+({gT:'tipo',gR:'regla',gC:'catalizador'})[g]+'.');continue}
       if(s.dataset.v===want[g]){s.classList.remove('sel');s.classList.add('good');document.querySelectorAll('#'+g+' .opt').forEach(o=>o.disabled=true)}
       else{all=false;st.first=false;s.classList.remove('sel');s.classList.add('bad');s.disabled=true;
         msgs.push(g==='gT'?`Tipo: ${esc(s.dataset.v)} → ${TYPE_TIP[s.dataset.v]}`:g==='gR'?`Regla: ${esc(s.dataset.v)} → ${RULE_TIP[s.dataset.v]}`:`Catalizador: ${esc(s.dataset.v)} no es el de esta reacción. ${esc(x.h)}`)}}
