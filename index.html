@@ -132,14 +132,14 @@ mark.mf{background:#CFE8D8;color:#1f5a3a;border-radius:4px;padding:0 2px}
 
   <header class="top">
     <h1>Simulador de reacciones orgánicas</h1>
-    <p>Química 2.º Bachillerato · Unidad 4 · Completa, clasifica y nombra las reacciones orgánicas de la PAU.</p>
+    <p>Química 2.º Bachillerato · Unidad 4 · Completa, clasifica y nombra las reacciones orgánicas de la PAU. El apartado «PAU 2016-2025» solo tiene reacciones que han salido en la PAU de Canarias.</p>
   </header>
 
   <div class="seg view-tabs" id="segView"><button data-v="pra" class="on">Practicar</button><button data-v="teo">Teoría</button><button data-v="pro">Progreso</button></div>
 
   <section class="card controls">
     <div class="row"><span class="lbl">Apartado</span>
-      <div class="seg" id="segSec"><button data-s="pau" class="on">Reacciones de PAU</button><button data-s="amp">Ampliación</button></div></div>
+      <div class="seg" id="segSec"><button data-s="pau" class="on">Reacciones de PAU</button><button data-s="amp">Ampliación</button><button data-s="real">PAU 2016-2025</button></div></div>
     <div id="vPraCtl">
     <div class="row"><span class="lbl">Modo</span>
       <div class="seg" id="segMode"><button data-m="falta" class="on">¿Qué falta?</button><button data-m="cla">Clasifica</button><button data-m="nom">Nombra</button><button data-m="sim">Simulacro de examen</button></div></div>
@@ -563,10 +563,148 @@ const AMP = [
 ];
 
 
+/* Reacciones que han salido en la PAU de Canarias (exámenes de la carpeta «PAU Química», 2016-2025). y = convocatorias. */
+const REAL = [
+{id:'r1',y:'Junio 2016 · Junio 2021 · Julio 2023',k:10,rg:'Ninguna',t:'Condensación',r:[['CH₃–COOH','ácido etanoico'],['CH₃–CH₂OH','etanol']],c:'H⁺',p:[['CH₃–COO–CH₂–CH₃','etanoato de etilo'],['H₂O','agua']],
+ a:[['p0',['CH₃–CH₂–COO–CH₃','CH₃–CH₂–O–CH₂–CH₃','CH₃–CO–CH₂–CH₃']],['r1',['CH₃–CHO','CH₃–O–CH₃','CH₃–CH₃']]],
+ h:'Ácido + alcohol en medio ácido: se unen y sale agua.',w:'Esterificación: etanoato de etilo (acetato de etilo). En julio de 2023 se contextualizó como el éster que se forma en algunos vinos.'},
+{id:'r2',y:'Junio 2016 · Junio 2023',k:7,rg:'Markovnikov',t:'Adición',r:[['CH₂=CH–CH₃','propeno'],['HBr','bromuro de hidrógeno']],c:'',p:[['CH₃–CHBr–CH₃','2-bromopropano']],
+ a:[['p0',['CH₂Br–CH₂–CH₃','CH₂Br–CHBr–CH₃','CH₂=CBr–CH₃']]],
+ h:'Markovnikov: el H va al =CH₂.',w:'Adición de HBr: el producto mayoritario es 2-bromopropano; el 1-bromopropano es el minoritario (así lo recoge la solución de junio de 2016).'},
+{id:'r3',y:'Julio 2016 · Junio 2019 · 2020 ordinaria · Junio 2024',k:7,rg:'Ninguna',t:'Adición',r:[['CH₃–CH=CH–CH₃','but-2-eno'],['HCl','cloruro de hidrógeno']],c:'',p:[['CH₃–CHCl–CH₂–CH₃','2-clorobutano']],
+ a:[['p0',['CH₂Cl–CH₂–CH₂–CH₃','CH₃–CHCl–CHCl–CH₃','CH₃–CH₂–CH₂–CH₃']],['r1',['Cl₂','NaCl','H₂']]],
+ h:'Un H a un carbono del doble enlace y el Cl al otro.',w:'Adición de HCl al but-2-eno: 2-clorobutano. Alqueno simétrico: un único producto. En 2019 se preguntó porque el producto tiene un carbono quiral (C2).'},
+{id:'r4',y:'Julio 2016 · Julio 2021',k:6,rg:'Ninguna',t:'Adición',r:[['CH₃–CH=CH–CH₃','but-2-eno'],['H₂O','agua']],c:'H₂SO₄',p:[['CH₃–CHOH–CH₂–CH₃','butan-2-ol']],
+ a:[['p0',['CH₂OH–CH₂–CH₂–CH₃','CH₃–CO–CH₂–CH₃','CH₃–CHOH–CHOH–CH₃']]],
+ h:'Hidratación en medio ácido.',w:'El OH entra en un carbono del doble enlace y el H en el otro: butan-2-ol.'},
+{id:'r5',y:'Julio 2016 · Julio 2017',k:5,rg:'Ninguna',t:'Adición',r:[['CH₃–CH=CH–CH₃','but-2-eno'],['Cl₂','cloro']],c:'',p:[['CH₃–CHCl–CHCl–CH₃','2,3-diclorobutano']],
+ a:[['p0',['CH₃–CCl₂–CH₂–CH₃','CH₂Cl–CH₂–CH₂–CH₂Cl','CH₃–CHCl–CH₂–CH₃']]],
+ h:'Un Cl en cada carbono del doble enlace.',w:'Halogenación del but-2-eno: 2,3-diclorobutano.'},
+{id:'r6',y:'Junio 2017 · Julio 2021',k:5,rg:'Ninguna',t:'Adición',r:[['CH₂=CH–CH₃','propeno'],['Cl₂','cloro']],c:'',p:[['CH₂Cl–CHCl–CH₃','1,2-dicloropropano']],
+ a:[['p0',['CH₃–CCl₂–CH₃','CH₂Cl–CH₂–CH₂Cl','CH₃–CHCl–CH₃']]],
+ h:'Los dos Cl van a C1 y C2.',w:'Adición de Cl₂ al propeno: 1,2-dicloropropano.'},
+{id:'r7',y:'Junio 2017',k:6,rg:'Markovnikov',t:'Adición',r:[['CH₂=CH–CH₃','propeno'],['H₂O','agua']],c:'H₂SO₄',p:[['CH₃–CHOH–CH₃','propan-2-ol']],
+ a:[['p0',['CH₂OH–CH₂–CH₃','CH₃–CO–CH₃','CH₂OH–CHOH–CH₃']]],
+ h:'Markovnikov: el OH va al carbono central.',w:'Hidratación (Markovnikov): propan-2-ol mayoritario; propan-1-ol minoritario.'},
+{id:'r8',y:'Junio 2017',k:12,rg:'Ninguna',t:'Combustión',r:[['CH₂=CH–CH₃','propeno'],['9/2 O₂','oxígeno']],c:'',p:[['3 CO₂','dióxido de carbono'],['3 H₂O','agua']],
+ a:[['r1',['3 O₂','9 O₂','5 O₂']],['p1',['6 H₂O','2 H₂O','4 H₂O']],['p0',['3 CO','CO₂','6 CO₂']]],
+ h:'C₃H₆: 3 CO₂ y 3 H₂O. Cuenta los O.',w:'C₃H₆ + 9/2 O₂ → 3 CO₂ + 3 H₂O. Productos: 6 + 3 = 9 O.'},
+{id:'r9',y:'Julio 2017',k:10,rg:'Ninguna',t:'Condensación',r:[['CH₃–CH₂–CH₂–COOH','ácido butanoico'],['CH₃–CH₂OH','etanol']],c:'H⁺',p:[['CH₃–CH₂–CH₂–COO–CH₂–CH₃','butanoato de etilo'],['H₂O','agua']],
+ a:[['p0',['CH₃–COO–CH₂–CH₂–CH₂–CH₃','CH₃–CH₂–CH₂–CO–CH₂–CH₃','CH₃–CH₂–CH₂–O–CH₂–CH₃']]],
+ h:'«butanoato» viene del ácido; «de etilo», del alcohol.',w:'Esterificación: butanoato de etilo y agua.'},
+{id:'r10',y:'Julio 2017',k:9,rg:'Ninguna',t:'Eliminación',r:[['CH₃–CH₂–CH₂–CH₂Br','1-bromobutano'],['NaOH','hidróxido de sodio']],c:'calor (la PAU no indica el medio)',p:[['CH₂=CH–CH₂–CH₃','but-1-eno'],['NaBr + H₂O','bromuro de sodio y agua']],
+ a:[['p0',['CH₃–CH=CH–CH₃','CH₃–CH₂–CH₂–CH₃','CH₃–CH₂–CH₂–CHO']]],
+ h:'La solución oficial la trata como eliminación.',w:'Según la solución oficial es una eliminación: but-1-eno. Ojo: el enunciado no indica el medio; con NaOH en agua se formaría butan-1-ol (sustitución). En el examen indica siempre el medio que supones.'},
+{id:'r11',y:'Julio 2017',k:8,rg:'Ninguna',t:'Eliminación',r:[['CH₃–CHOH–CH₃','propan-2-ol']],c:'H₂SO₄, calor',p:[['CH₂=CH–CH₃','propeno'],['H₂O','agua']],
+ a:[['p0',['CH₃–CO–CH₃','CH₃–CH₂–CH₃','CH₃–CH₂–CHO']]],
+ h:'Sale una molécula de agua del alcohol.',w:'Deshidratación del propan-2-ol: propeno. Los dos carbonos vecinos son equivalentes.'},
+{id:'r12',y:'Junio 2018 · Junio 2023',k:12,rg:'Ninguna',t:'Combustión',r:[['CH₃–CH₂–CH₂–CH₃','butano'],['13/2 O₂','oxígeno']],c:'',p:[['4 CO₂','dióxido de carbono'],['5 H₂O','agua']],
+ a:[['r1',['13 O₂','9/2 O₂','6 O₂']],['p1',['10 H₂O','4 H₂O','5 H₂']],['p0',['4 CO','2 CO₂','8 CO₂']]],
+ h:'C₄H₁₀: 4 CO₂ y 5 H₂O.',w:'C₄H₁₀ + 13/2 O₂ → 4 CO₂ + 5 H₂O. En junio de 2023 se escribió multiplicada por 2: 2 C₄H₁₀ + 13 O₂ → 8 CO₂ + 10 H₂O.'},
+{id:'r13',y:'Junio 2018',k:4,rg:'Ninguna',t:'Adición',r:[['CH₂=CH–CH₃','propeno'],['H₂','hidrógeno']],c:'Pt',p:[['CH₃–CH₂–CH₃','propano']],
+ a:[['p0',['CH≡C–CH₃','CH₃–CHOH–CH₃','CH₂=CH–CH₂–CH₃']],['c',['luz (hν)','H₂SO₄','medio acuoso']]],
+ h:'El alqueno gana dos H.',w:'Hidrogenación del propeno: propano.'},
+{id:'r14',y:'Junio 2018',k:1,rg:'Ninguna',t:'Sustitución',r:[['CH₃–CH₃','etano'],['Cl₂','cloro']],c:'luz (hν)',p:[['CH₃–CH₂Cl','cloroetano'],['HCl','cloruro de hidrógeno']],
+ a:[['p0',['CH₂=CH₂','CH₃–CH₂OH','CH₂Cl–CH₂Cl']],['p1',['H₂','H₂O','Cl⁻']],['c',['Pt','H₂SO₄, calor','etanol, calor']]],
+ h:'Alcano + halógeno con luz.',w:'Sustitución por radicales libres: cloroetano y HCl.'},
+{id:'r15',y:'Junio 2018',k:9,rg:'Ninguna',t:'Eliminación',r:[['CH₃–CH₂–CH₂Br','1-bromopropano'],['KOH','hidróxido de potasio']],c:'etanol, calor',p:[['CH₂=CH–CH₃','propeno'],['KBr + H₂O','bromuro de potasio y agua']],
+ a:[['p0',['CH₃–CH₂–CH₂OH','CH₃–CH₂–CH₃','CH≡C–CH₃']],['c',['medio acuoso','Pt','luz (hν)']]],
+ h:'KOH en alcohol y calor: eliminación.',w:'Deshidrohalogenación: propeno, KBr y agua.'},
+{id:'r16',y:'Julio 2018',k:10,rg:'Ninguna',t:'Condensación',r:[['CH₃–COOH','ácido etanoico'],['CH₃–CH₂–CH₂–CH₂OH','butan-1-ol']],c:'H⁺',p:[['CH₃–COO–CH₂–CH₂–CH₂–CH₃','etanoato de butilo'],['H₂O','agua']],
+ a:[['r0',['CH₃–CH₂–CH₂–COOH','CH₃–CHO','CH₃–CH₂OH']],['r1',['CH₃–CH₂OH','CH₃–CH₂–CH₂–CH₂–COOH','CH₃–CH₂–CH₂–CHO']],['p0',['CH₃–CH₂–CH₂–COO–CH₂–CH₃','CH₃–CO–CH₂–CH₂–CH₂–CH₃','CH₃–CH₂–CH₂–CH₂–O–CH₃']]],
+ h:'«etanoato» → ácido etanoico; «de butilo» → butan-1-ol.',w:'El éster con olor a plátano (etanoato de butilo) se obtiene de ácido etanoico y butan-1-ol. La solución publicada escribe «etanol + ácido butanoico», que daría butanoato de etilo: es una errata.'},
+{id:'r17',y:'Junio 2019',k:10,rg:'Ninguna',t:'Condensación',r:[['CH₃–CH₂–CH(CH₃)–COOH','ácido 2-metilbutanoico'],['CH₃–CH₂OH','etanol']],c:'H⁺',p:[['CH₃–CH₂–CH(CH₃)–COO–CH₂–CH₃','2-metilbutanoato de etilo'],['H₂O','agua']],
+ a:[['p0',['CH₃–CH₂–CH(CH₃)–CO–CH₂–CH₃','CH₃–COO–CH₂–CH(CH₃)–CH₂–CH₃','CH₃–CH₂–CH(CH₃)–CH₂–O–CH₂–CH₃']]],
+ h:'La ramificación del ácido se conserva.',w:'Esterificación: 2-metilbutanoato de etilo. El ácido de partida tiene un C quiral (C2).'},
+{id:'r18',y:'Julio 2019',k:4,rg:'Ninguna',t:'Adición',r:[['CH₃–CH₂–CH₂–CH=CCl–CH₂Cl','1,2-diclorohex-2-eno'],['H₂','hidrógeno']],c:'Pt',p:[['CH₃–CH₂–CH₂–CH₂–CHCl–CH₂Cl','1,2-diclorohexano']],
+ a:[['p0',['CH₃–CH₂–CH₂–CH₂–CH₂–CH₃','CH₃–CH₂–CH₂–CHCl–CHCl–CH₃','CH₃–CH₂–CH₂–C≡C–CH₂Cl']]],
+ h:'El H₂ solo satura el doble enlace; los Cl se quedan.',w:'Hidrogenación: 1,2-diclorohexano. Se preguntó porque el C2 queda unido a cuatro grupos distintos (carbono quiral).'},
+{id:'r19',y:'2020 extraordinaria',k:10,rg:'Ninguna',t:'Condensación',r:[['CH₃–CH(CH₃)–CH₂–COOH','ácido 3-metilbutanoico'],['CH₃OH','metanol']],c:'H⁺',p:[['CH₃–CH(CH₃)–CH₂–COO–CH₃','3-metilbutanoato de metilo'],['H₂O','agua']],
+ a:[['p0',['CH₃–COO–CH₂–CH(CH₃)–CH₃','CH₃–CH(CH₃)–CH₂–CO–CH₃','CH₃–CH(CH₃)–CH₂–CH₂–O–CH₃']]],
+ h:'«3-metilbutanoato» del ácido, «de metilo» del metanol.',w:'Esterificación: 3-metilbutanoato de metilo.'},
+{id:'r20',y:'2020 extraordinaria',k:5,rg:'Ninguna',t:'Adición',r:[['CH₃–(CH₂)₅–CH=CH–CHO','non-2-enal'],['Cl₂','cloro']],c:'',p:[['CH₃–(CH₂)₅–CHCl–CHCl–CHO','2,3-diclorononanal']],
+ a:[['p0',['CH₃–(CH₂)₅–CH=CH–COOH','CH₃–(CH₂)₅–CHCl–CH₂–CHO','CH₃–(CH₂)₅–CH=CCl–CHO']]],
+ h:'El Cl₂ se suma al C=C; el aldehído no cambia.',w:'Adición de Cl₂ al doble enlace C2=C3: 2,3-diclorononanal (compuesto único). El 2-nonenal se presentó como responsable de un olor corporal.'},
+{id:'r21',y:'2020 extraordinaria',k:10,rg:'Ninguna',t:'Condensación',r:[['CH₃–CH(CH₃)–COOH','ácido metilpropanoico'],['CH₃OH','metanol']],c:'H⁺',p:[['CH₃–CH(CH₃)–COO–CH₃','2-metilpropanoato de metilo'],['H₂O','agua']],
+ a:[['r0',['CH₃–CH₂–CH₂–COOH','CH₃–CH(CH₃)–CH₂OH','CH₃–COOH']],['r1',['CH₃–CH₂OH','H–CHO','CH₃–O–CH₃']],['p0',['CH₃–COO–CH(CH₃)–CH₃','CH₃–CH(CH₃)–CO–CH₃','CH₃–CH(CH₃)–CH₂–O–CH₃']]],
+ h:'La PAU daba el éster y pedía el ácido y el alcohol de partida.',w:'2-metilpropanoato de metilo = ácido metilpropanoico + metanol.'},
+{id:'r22',y:'2020 ordinaria',k:12,rg:'Ninguna',t:'Combustión',r:[['CH₃–CH(CH₃)–CH₂–CH₃','metilbutano'],['8 O₂','oxígeno']],c:'',p:[['5 CO₂','dióxido de carbono'],['6 H₂O','agua']],
+ a:[['r1',['13/2 O₂','11/2 O₂','16 O₂']],['p1',['5 H₂O','12 H₂O','6 H₂']],['p0',['5 CO','4 CO₂','10 CO₂']]],
+ h:'C₅H₁₂: 5 CO₂ y 6 H₂O.',w:'C₅H₁₂ + 8 O₂ → 5 CO₂ + 6 H₂O. Productos: 10 + 6 = 16 O = 8 O₂.'},
+{id:'r23',y:'Junio 2021',k:7,rg:'Markovnikov',t:'Adición',r:[['CH₂=CH–CH₂–CH₃','but-1-eno'],['HCl','cloruro de hidrógeno']],c:'',p:[['CH₃–CHCl–CH₂–CH₃','2-clorobutano']],
+ a:[['p0',['CH₂Cl–CH₂–CH₂–CH₃','CH₂Cl–CHCl–CH₂–CH₃','CH₃–CH=CH–CH₃']]],
+ h:'Markovnikov: el Cl va al C2.',w:'Adición de HCl: 2-clorobutano mayoritario; 1-clorobutano minoritario.'},
+{id:'r24',y:'Junio 2021',k:3,rg:'Ninguna',t:'Sustitución',r:[['CH₃–CHOH–CH₂–CH₃','butan-2-ol'],['HBr','bromuro de hidrógeno']],c:'H⁺',p:[['CH₃–CHBr–CH₂–CH₃','2-bromobutano'],['H₂O','agua']],
+ a:[['r1',['Br₂','NaBr','H₂']],['p0',['CH₂Br–CH₂–CH₂–CH₃','CH₃–CH=CH–CH₃','CH₃–CO–CH₂–CH₃']]],
+ h:'El Br ocupa el lugar del OH.',w:'Sustitución: 2-bromobutano y agua. En el examen había que descubrir el reactivo (HBr).'},
+{id:'r25',y:'Junio 2021 · Julio 2021 · Julio 2024',k:8,rg:'Saytzev',t:'Eliminación',r:[['CH₃–CHOH–CH₂–CH₃','butan-2-ol']],c:'H₂SO₄, calor',p:[['CH₃–CH=CH–CH₃','but-2-eno'],['H₂O','agua']],
+ a:[['p0',['CH₂=CH–CH₂–CH₃','CH₃–CO–CH₂–CH₃','CH₃–CH₂–CH₂–CH₃']]],
+ h:'Saytzev: el H sale del C3.',w:'Deshidratación: but-2-eno mayoritario y but-1-eno minoritario. Es la reacción orgánica que más se repite en estos años.'},
+{id:'r26',y:'Julio 2021',k:10,rg:'Ninguna',t:'Condensación',r:[['CH₃–COOH','ácido etanoico'],['CH₂OH–CH(CH₂–CH₃)–CH₂–CH₂–CH₂–CH₃','2-etilhexan-1-ol']],c:'H⁺',p:[['CH₃–COO–CH₂–CH(CH₂–CH₃)–CH₂–CH₂–CH₂–CH₃','etanoato de 2-etilhexilo'],['H₂O','agua']],
+ a:[['r1',['CH₃–CH₂OH','CH₂OH–CH(CH₃)–CH₂–CH₂–CH₂–CH₃','CHO–CH(CH₂–CH₃)–CH₂–CH₂–CH₂–CH₃']],['p0',['CH₃–CO–CH₂–CH(CH₂–CH₃)–CH₂–CH₂–CH₂–CH₃','CH₃–CH₂–COO–CH₂–CH(CH₂–CH₃)–CH₂–CH₂–CH₂–CH₃','CH₃–COO–CH₂–CH₃']]],
+ h:'«de 2-etilhexilo» viene del alcohol 2-etilhexan-1-ol.',w:'Esterificación: etanoato de 2-etilhexilo (usado en perfumería). Tiene un carbono quiral, procedente del C2 del alcohol.'},
+{id:'r27',y:'Julio 2021',k:2,rg:'Ninguna',t:'Sustitución',r:[['CH₃–CHCl–CH₃','2-cloropropano'],['NaOH','hidróxido de sodio']],c:'medio acuoso',p:[['CH₃–CHOH–CH₃','propan-2-ol'],['NaCl','cloruro de sodio']],
+ a:[['p0',['CH₂=CH–CH₃','CH₂OH–CH₂–CH₃','CH₃–CO–CH₃']],['c',['etanol, calor','luz (hν)','Pt']]],
+ h:'NaOH en agua: sustitución.',w:'El OH⁻ sustituye al Cl: propan-2-ol y NaCl.'},
+{id:'r28',y:'Junio 2022',k:8,rg:'Saytzev',t:'Eliminación',r:[['C₆H₁₀(OH)–CH₃','1-metilciclohexan-1-ol']],c:'H₂SO₄, calor',p:[['C₆H₉–CH₃','1-metilciclohexeno'],['H₂O','agua']],
+ a:[['p0',['C₆H₁₀=CH₂','C₆H₁₁–CH₃','C₆H₁₀O']]],
+ h:'Saytzev: el doble enlace queda dentro del anillo (alqueno más sustituido).',w:'Deshidratación: 1-metilciclohexeno (doble enlace en el anillo, el más sustituido). El metilenciclohexano, C₆H₁₀=CH₂, sería el minoritario.'},
+{id:'r29',y:'Junio 2022',k:3,rg:'Ninguna',t:'Sustitución',r:[['CH₃OH','metanol'],['HCl','cloruro de hidrógeno']],c:'H⁺',p:[['CH₃Cl','clorometano'],['H₂O','agua']],
+ a:[['p0',['CH₄','CH₃–O–CH₃','H–CHO']],['r1',['Cl₂','NaCl','H₂']]],
+ h:'El OH sale como agua y entra el Cl.',w:'Sustitución: clorometano y agua.'},
+{id:'r30',y:'Junio 2022',k:7,rg:'Markovnikov',t:'Adición',r:[['(CH₃)₂C=CH–CH₃','2-metilbut-2-eno'],['HCl','cloruro de hidrógeno']],c:'',p:[['(CH₃)₂CCl–CH₂–CH₃','2-cloro-2-metilbutano']],
+ a:[['p0',['(CH₃)₂CH–CHCl–CH₃','(CH₃)₂CCl–CHCl–CH₃','(CH₃)₂CH–CH₂–CH₂Cl']]],
+ h:'Markovnikov: el H va al C3 (tiene un H); el Cl, al C2 (no tiene).',w:'Mayoritario: 2-cloro-2-metilbutano. La solución oficial escribe también el minoritario, 2-cloro-3-metilbutano.'},
+{id:'r31',y:'Julio 2024',k:7,rg:'Markovnikov',t:'Adición',r:[['(CH₃)₂C=CH–CH₃','2-metilbut-2-eno'],['HBr','bromuro de hidrógeno']],c:'',p:[['(CH₃)₂CBr–CH₂–CH₃','2-bromo-2-metilbutano']],
+ a:[['p0',['(CH₃)₂CH–CHBr–CH₃','(CH₃)₂CBr–CHBr–CH₃','(CH₃)₂CH–CH₂–CH₂Br']]],
+ h:'Markovnikov: el Br va al carbono más sustituido.',w:'Mayoritario (Markovnikov): 2-bromo-2-metilbutano, sin carbono quiral. La PAU pedía el producto con carbono quiral: el 2-bromo-3-metilbutano, (CH₃)₂CH–C*HBr–CH₃, que es el minoritario.'},
+{id:'r32',y:'Julio 2022 · Junio 2024',k:7,rg:'Ninguna',t:'Adición',r:[['CH₂=CH₂','eteno'],['HCl','cloruro de hidrógeno']],c:'',p:[['CH₃–CH₂Cl','cloroetano']],
+ a:[['p0',['CH₂Cl–CH₂Cl','CH₂=CHCl','CH₃–CH₂OH']]],
+ h:'Un H y un Cl, uno en cada carbono.',w:'Adición de HCl al eteno: cloroetano.'},
+{id:'r33',y:'Julio 2022',k:8,rg:'Ninguna',t:'Eliminación',r:[['CH₃–CH₂–CH₂OH','propan-1-ol']],c:'H₂SO₄, calor',p:[['CH₂=CH–CH₃','propeno'],['H₂O','agua']],
+ a:[['p0',['CH₃–CH₂–CHO','CH₃–CH₂–CH₃','CH₃–CO–CH₃']]],
+ h:'Del alcohol sale agua y aparece un doble enlace.',w:'Deshidratación: propeno y agua.'},
+{id:'r34',y:'Julio 2022',k:7,rg:'Markovnikov',t:'Adición',r:[['CH₂=CH–CH₂–CH₃','but-1-eno'],['HI','yoduro de hidrógeno']],c:'',p:[['CH₃–CHI–CH₂–CH₃','2-yodobutano']],
+ a:[['p0',['CH₂I–CHI–CH₂–CH₃','CH₂I–CH₂–CH₂–CH₃','CH₃–CH=CH–CH₃']]],
+ h:'El HI añade un solo I.',w:'Mayoritario: 2-yodobutano (Markovnikov). La PAU preguntaba si se formaría 1,2-diyodobutano: es falso, eso ocurriría con I₂, no con HI.'},
+{id:'r35',y:'Julio 2022',k:12,rg:'Ninguna',t:'Combustión',r:[['CH₂=CH–CH₂–CH₃','but-1-eno'],['6 O₂','oxígeno']],c:'',p:[['4 CO₂','dióxido de carbono'],['4 H₂O','agua']],
+ a:[['r1',['4 O₂','13/2 O₂','8 O₂']],['p1',['8 H₂O','5 H₂O','2 H₂O']],['p0',['4 CO','2 CO₂','8 CO₂']]],
+ h:'C₄H₈: 4 CO₂ y 4 H₂O.',w:'C₄H₈ + 6 O₂ → 4 CO₂ + 4 H₂O. Productos: 8 + 4 = 12 O = 6 O₂.'},
+{id:'r36',y:'Junio 2023',k:8,rg:'Ninguna',t:'Eliminación',r:[['CH₃–CH₂OH','etanol']],c:'H₂SO₄, calor',p:[['CH₂=CH₂','eteno'],['H₂O','agua']],
+ a:[['p0',['CH₃–CHO','CH₃–CH₃','CH₃–CH₂–O–CH₂–CH₃']]],
+ h:'Deshidratación del alcohol.',w:'Deshidratación del etanol: eteno y agua.'},
+{id:'r37',y:'Junio 2023',k:10,rg:'Ninguna',t:'Condensación',r:[['CH₃–COOH','ácido etanoico'],['CH₃OH','metanol']],c:'H⁺',p:[['CH₃–COO–CH₃','etanoato de metilo'],['H₂O','agua']],
+ a:[['p0',['CH₃–O–CH₃','CH₃–CO–CH₃','CH₃–CH₂–COO–CH₃']]],
+ h:'Ácido + alcohol → éster + agua.',w:'Esterificación: etanoato de metilo y agua.'},
+{id:'r38',y:'Junio 2024',k:10,rg:'Ninguna',t:'Condensación',r:[['C₆H₅–OH','fenol'],['CH₃–COOH','ácido etanoico']],c:'H⁺',p:[['CH₃–COO–C₆H₅','etanoato de fenilo'],['H₂O','agua']],
+ a:[['p0',['C₆H₅–COO–CH₃','C₆H₅–O–CH₃','C₆H₅–CO–CH₃']]],
+ h:'El fenol actúa como el alcohol de la esterificación.',w:'Esterificación: etanoato de fenilo y agua. Cuidado: C₆H₅–COO–CH₃ sería benzoato de metilo.'},
+{id:'r39',y:'Julio 2024',k:11,rg:'Ninguna',t:'Condensación',r:[['CH₃–CH₂–COOH','ácido propanoico'],['CH₃–CH₂–NH₂','etanamina']],c:'calor',p:[['CH₃–CH₂–CO–NH–CH₂–CH₃','N-etilpropanamida'],['H₂O','agua']],
+ a:[['p0',['CH₃–CH₂–COO–CH₂–CH₃','CH₃–CO–NH–CH₂–CH₂–CH₃','CH₃–CH₂–NH–CH₂–CH₃']]],
+ h:'Ácido + amina → amida + agua.',w:'Condensación: N-etilpropanamida y agua.'},
+{id:'r40',y:'Junio 2025',k:'ab',rg:'Ninguna',t:'Ácido-base',r:[['CH₃–CHOH–COOH','ácido 2-hidroxipropanoico (láctico)'],['NaOH','hidróxido de sodio']],c:'',p:[['CH₃–CHOH–COONa','2-hidroxipropanoato de sodio'],['H₂O','agua']],
+ a:[['p0',['CH₃–CHONa–COOH','CH₃–CHOH–CH₂OH','CH₃–CO–COONa']]],
+ h:'Reacciona el H ácido del –COOH, no el OH del alcohol.',w:'Neutralización del ácido láctico: 2-hidroxipropanoato de sodio (lactato de sodio) y agua.'},
+{id:'r41',y:'Junio 2025',k:10,rg:'Ninguna',t:'Condensación',r:[['CH₃–CHOH–COOH','ácido 2-hidroxipropanoico (láctico)'],['CH₃–CH₂OH','etanol']],c:'H⁺',p:[['CH₃–CHOH–COO–CH₂–CH₃','2-hidroxipropanoato de etilo'],['H₂O','agua']],
+ a:[['p0',['CH₃–CH(O–CH₂–CH₃)–COOH','CH₃–CO–COO–CH₂–CH₃','CH₃–CHOH–CO–CH₂–CH₃']]],
+ h:'El etanol se une al –COOH.',w:'Esterificación: 2-hidroxipropanoato de etilo (lactato de etilo) y agua.'},
+{id:'r42',y:'Junio 2025',k:14,rg:'Ninguna',t:'Oxidación',r:[['CH₃–CHOH–COOH','ácido 2-hidroxipropanoico (láctico)']],c:'K₂Cr₂O₇, H⁺',p:[['CH₃–CO–COOH','ácido 2-oxopropanoico']],
+ a:[['p0',['CH₃–CH₂–COOH','CH₂=CH–COOH','CH₃–CHOH–CHO']]],
+ h:'El OH está en un carbono secundario.',w:'El grupo alcohol secundario del C2 se oxida a cetona: ácido 2-oxopropanoico (pirúvico). Sirven como oxidantes KMnO₄ o K₂Cr₂O₇.'},
+{id:'r43',y:'Julio 2025',k:10,rg:'Ninguna',t:'Condensación',r:[['H–COOH','ácido metanoico'],['CH₃–CH₂OH','etanol']],c:'H⁺',p:[['H–COO–CH₂–CH₃','metanoato de etilo'],['H₂O','agua']],
+ a:[['r0',['CH₃–COOH','H–CHO','CH₃OH']],['r1',['CH₃OH','CH₃–CHO','CH₃–O–CH₃']],['p0',['CH₃–COO–CH₃','CH₃–CH₂–O–CH₃','CH₃–CH₂–COOH']]],
+ h:'El formiato (metanoato) de etilo da sabor a frambuesa.',w:'Metanoato de etilo = ácido metanoico + etanol (esterificación).'},
+{id:'r44',y:'Julio 2025',k:10,rg:'Ninguna',t:'Condensación',r:[['CH₃–CH(CH₃)–COOH','ácido metilpropanoico'],['CH₃–CH₂–CH₂–CH₂OH','butan-1-ol']],c:'H⁺',p:[['CH₃–CH(CH₃)–COO–CH₂–CH₂–CH₂–CH₃','2-metilpropanoato de butilo'],['H₂O','agua']],
+ a:[['p0',['CH₃–CH₂–CH₂–COO–CH₂–CH(CH₃)–CH₃','CH₃–CH(CH₃)–CO–CH₂–CH₂–CH₂–CH₃','CH₃–CH(CH₃)–CH₂–O–CH₂–CH₂–CH₂–CH₃']]],
+ h:'«2-metilpropanoato» del ácido; «de butilo» del alcohol.',w:'Esterificación: 2-metilpropanoato de butilo y agua.'}
+];
+
 const TYPES = {
   pau:['Sustitución','Adición','Eliminación','Condensación','Combustión','Oxidación','Reducción'],
-  amp:['Sustitución','Adición','Eliminación','Condensación','Combustión','Oxidación','Reducción','Hidrólisis','Ácido-base']
+  amp:['Sustitución','Adición','Eliminación','Condensación','Combustión','Oxidación','Reducción','Hidrólisis','Ácido-base'],
+  real:['Sustitución','Adición','Eliminación','Condensación','Combustión','Oxidación','Reducción','Ácido-base']
 };
+const SECNAME={pau:'Reacciones de PAU',amp:'Ampliación',real:'PAU 2016-2025'};
 const TYPE_TIP = {
   'Sustitución':'un átomo o grupo se cambia por otro.',
   'Adición':'desaparece un doble o triple enlace y se suman átomos.',
@@ -613,7 +751,7 @@ const KINFO={
  ab:{rompe:'O–H del ácido',forma:'la sal (–COO⁻ Na⁺) y el agua',hr:'COOH',hp:'COONa'},
  nox:{rompe:'nada',forma:'nada',hr:null,hp:null}
 };
-const FX={'(CH₃)₃CCl':['CH₃–CCl(CH₃)–CH₃','CH₃–CCl(CH₃)₂','CCl(CH₃)₃'],'(CH₃)₂C=CH–CH₃':['CH₃–C(CH₃)=CH–CH₃','CH₃–CH=C(CH₃)₂','CH₃–CH=C(CH₃)–CH₃'],
+const FX={'CH₃–(CH₂)₅–CH=CH–CHO':['CH₃–CH₂–CH₂–CH₂–CH₂–CH₂–CH=CH–CHO'],'CH₃–(CH₂)₅–CHCl–CHCl–CHO':['CH₃–CH₂–CH₂–CH₂–CH₂–CH₂–CHCl–CHCl–CHO'],'(CH₃)₂CCl–CH₂–CH₃':['CH₃–CCl(CH₃)–CH₂–CH₃'],'(CH₃)₂CBr–CH₂–CH₃':['CH₃–CBr(CH₃)–CH₂–CH₃'],'CH₃–COO–C₆H₅':['CH₃–COOC₆H₅'],'(CH₃)₃CCl':['CH₃–CCl(CH₃)–CH₃','CH₃–CCl(CH₃)₂','CCl(CH₃)₃'],'(CH₃)₂C=CH–CH₃':['CH₃–C(CH₃)=CH–CH₃','CH₃–CH=C(CH₃)₂','CH₃–CH=C(CH₃)–CH₃'],
  'no reacciona':['no','no se oxida','ninguno','nada','no hay reaccion'],'C₆H₅–CH₃':['C₆H₅CH₃','CH₃–C₆H₅'],'C₆H₅–NO₂':['C₆H₅NO₂'],
  'CH₂=C(CH₃)–CH₃':['CH₂=C(CH₃)₂','(CH₃)₂C=CH₂'],'(CH₃)₃C–OH':['(CH₃)₃COH','CH₃–COH(CH₃)–CH₃','CH₃–C(OH)(CH₃)–CH₃'],
  'CH₃–CH(CH₃)–CH₂OH':['(CH₃)₂CH–CH₂OH'],'CH₃–CH(CH₃)–CHO':['(CH₃)₂CH–CHO'],'(CH₃)₃CBr':['CH₃–CBr(CH₃)–CH₃','(CH₃)₃C–Br']};
@@ -675,7 +813,7 @@ const KEY='q2-reac-org-ud4-v2';
 let store={ok:{},fail:{}}; try{const t=JSON.parse(localStorage.getItem(KEY)||'null');if(t&&t.ok)store=t}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}}
 const st={view:'pra',sec:'pau',mode:'falta',resp:'opc',tipo:'Todas',review:false,queue:[],total:0,cur:null};
-const bank=()=>st.sec==='pau'?PAU:AMP;
+const bank=()=>st.sec==='pau'?PAU:st.sec==='amp'?AMP:REAL;
 const ALL=()=>[...PAU,...AMP];
 const mkey=()=>st.mode==='falta'||st.mode==='nom'?st.mode+'-'+st.resp:st.mode;
 function pool(){
@@ -709,8 +847,8 @@ function fb(id,cls,html){const e=document.getElementById(id);e.className='fb sho
 function kbHTML(id){return `<div class="kb" data-for="${id}">${['–','=','≡','(',')'].map(k=>`<button type="button" data-k="${k}">${k}</button>`).join('')}</div>`}
 function bindKb(){document.querySelectorAll('.kb').forEach(kb=>kb.onclick=e=>{const b=e.target.closest('button');if(!b)return;
   const i=document.getElementById(kb.dataset.for);const p=i.selectionStart??i.value.length;i.value=i.value.slice(0,p)+b.dataset.k+i.value.slice(i.selectionEnd??p);i.focus();i.setSelectionRange(p+1,p+1)})}
-function head(extra){const pos=st.total-st.queue.length;
-  return `<div class="qhead"><span class="tag sec">${st.sec==='pau'?'Reacciones de PAU':'Ampliación'}${st.review?' · repaso de falladas':''}${extra||''}</span><span class="prog">${pos} de ${st.total}</span></div>`}
+function head(extra){const pos=st.total-st.queue.length; if(st.cur&&st.cur.y&&!extra)extra=' · '+st.cur.y;
+  return `<div class="qhead"><span class="tag sec">${SECNAME[st.sec]}${st.review?' · repaso de falladas':''}${extra||''}</span><span class="prog">${pos} de ${st.total}</span></div>`}
 const P=()=>document.getElementById('play');
 
 /* ---------- MODO 1: ¿Qué falta? ---------- */
@@ -852,7 +990,7 @@ function drawSim(){
   const sel=(id,opts)=>`<select id="${id}"><option value="">Elige…</option>${opts.map(o=>`<option>${esc(o)}</option>`).join('')}</select>`;
   const prod=st.resp==='opc'?`<div class="opts" id="opts">${shuffle([ans,...dist]).map(o=>`<button class="opt" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div>`
     :`<div class="wbox"><input id="win" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="fórmula o nombre"></div>${kbHTML('win')}`;
-  P().innerHTML=`<div class="qhead"><span class="tag">Simulacro de examen · ${st.sec==='pau'?'PAU':'Ampliación'}</span><span class="prog">Reacción ${S.i+1} de ${S.list.length}</span></div>
+  P().innerHTML=`<div class="qhead"><span class="tag">Simulacro de examen · ${SECNAME[st.sec]}</span><span class="prog">Reacción ${S.i+1} de ${S.list.length}${x.y?' · '+x.y:''}</span></div>
    <div class="prompt">Completa la reacción</div>
    <div id="rx">${rxHTML(x,['p0','c'],false)}</div>
    <div class="ctit">Producto principal</div>${prod}
@@ -875,7 +1013,7 @@ function endSim(){
     const pts=(pOk?.4:0)+(tOk?.2:0)+(cOk?.2:0)+(rOk?.2:0); tot+=pts;
     store.ok['sim:'+x.id]=pts===1?1:store.ok['sim:'+x.id]; if(pts<1)store.fail[x.id]=1;
     const it=(ok,lab,yours,right)=>`<li class="${ok?'g':'b'}">${ok?'✔':'✘'} ${lab}: ${ok?esc(right):`<s>${esc(yours||'sin respuesta')}</s> → ${esc(right)}`}</li>`;
-    return `<div class="simrow"><div class="simn">${i+1}</div><div>${rxHTML(x,[],true)}<ul class="chk">${it(pOk,'Producto',a.p,x.p[0][0]+' ('+cleanName(x.p[0][1])+')')}${it(tOk,'Tipo',a.t,x.t)}${it(cOk,'Catalizador',a.c,condOf(x))}${it(rOk,'Regla',a.r,x.rg)}</ul><div class="small">${esc(x.w)}</div></div></div>`}).join('');
+    return `<div class="simrow"><div class="simn">${i+1}</div><div>${x.y?'<div class="small">PAU '+x.y+'</div>':''}${rxHTML(x,[],true)}<ul class="chk">${it(pOk,'Producto',a.p,x.p[0][0]+' ('+cleanName(x.p[0][1])+')')}${it(tOk,'Tipo',a.t,x.t)}${it(cOk,'Catalizador',a.c,condOf(x))}${it(rOk,'Regla',a.r,x.rg)}</ul><div class="small">${esc(x.w)}</div></div></div>`}).join('');
   save(); renderProg();
   const nota=(tot).toFixed(1).replace('.',',');
   P().innerHTML=`<div class="done"><div class="tag">Simulacro terminado</div><h2>Nota: ${nota} / 10</h2>
@@ -918,7 +1056,7 @@ function renderProgView(){
   const rows=T.map(t=>{const L=B.filter(x=>x.t===t),d=L.filter(dom).length,f=L.filter(x=>store.fail[x.id]).length;
     return `<tr><td><b>${t}</b></td><td>${L.length}</td><td style="white-space:nowrap"><div class="minibar"><i style="width:${d/L.length*100}%"></i></div>${d}</td><td>${f?`<span class="badf">${f}</span>`:'0'}</td></tr>`}).join('');
   const nf_=B.filter(x=>store.fail[x.id]).length;
-  document.getElementById('vPro').innerHTML=`<h2 class="h2">Progreso · ${st.sec==='pau'?'Reacciones de PAU':'Ampliación'}</h2>
+  document.getElementById('vPro').innerHTML=`<h2 class="h2">Progreso · ${SECNAME[st.sec]}</h2>
    <p class="small">Dominada: resuelta a la primera, sin pista, en «¿Qué falta?», «Clasifica» o en un simulacro. Fallada: la que se ha fallado y aún no se ha resuelto a la primera.</p>
    <div class="tblwrap"><table class="reftab"><tr><th>Tipo</th><th>Total</th><th>Dominadas</th><th>Falladas</th></tr>${rows}</table></div>
    <div class="actions"><button class="btn pri" id="bRev2" ${nf_?'':'disabled'}>Repasar falladas (${nf_})</button><button class="btn sec" id="bDel">Borrar el progreso de este apartado</button></div>`;

@@ -6,6 +6,7 @@ Funciona en el navegador (ordenador, tablet o móvil), sin instalar nada ni regi
 
 ## Contenido
 - **Reacciones de PAU:** 84 reacciones de los 16 casos de la tabla de la PAU (sustitución, adición, eliminación, condensación, combustión, oxidación y reducción), con reglas de Markovnikov y Saytzev.
+- **PAU 2016-2025:** 44 reacciones que han salido en la PAU de Canarias entre 2016 y 2025, con su convocatoria.
 - **Ampliación:** 25 reacciones más (alquinos, hidratación con HgSO₄, sustitución en el benceno, éteres, hidrólisis, saponificación, ácido-base…).
 
 ## Modos
