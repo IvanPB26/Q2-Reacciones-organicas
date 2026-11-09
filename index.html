@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador de reacciones orgánicas · Profesor Iván PB-IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F6F3; --surface:#FFFFFF; --surface-alt:#E8F1EC;
+  --ink:#223333; --ink-soft:#5B6E6C; --ink-faint:#8A9C9A;
+  --primary:#4C8A80; --primary-dark:#2F5F58; --primary-pale:#DCEAE5;
+  --accent:#CD9A54; --accent-dark:#A97A3B; --accent-pale:#F3E5C9;
+  --blue:#5E7FB0; --blue-pale:#E1E9F5;
+  --danger:#C8695D; --danger-pale:#F6E2DF;
+  --success:#5C9276; --success-pale:#E1EEE5;
+  --border:#D9E4DF; --shadow:0 8px 24px -12px rgba(34,51,51,.18); --radius:16px;
+  --font-display:'Fraunces',Georgia,serif; --font-body:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; --font-mono:'JetBrains Mono','Courier New',monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);line-height:1.5;-webkit-font-smoothing:antialiased}
+.lattice-bg{position:fixed;inset:0;z-index:-1;pointer-events:none;background-image:radial-gradient(circle at 1px 1px,rgba(76,138,128,.10) 1.4px,transparent 1.4px);background-size:34px 34px}
+.shell{max-width:980px;margin:0 auto;padding:16px 16px 70px}
+.brandbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 2px 4px;font-size:14px}
+.brand-pill{display:flex;align-items:center;gap:12px;padding:7px 20px 7px 7px;border-radius:999px;background:var(--surface);border:1px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,.04);font-weight:600;color:var(--ink)}
+.brand-pill>span:last-child{white-space:nowrap}
+@media (max-width:640px){.brand-pill{font-size:13px;padding-right:14px}}
+.brand-ico{width:40px;height:40px;border-radius:50%;background:var(--primary-dark);color:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.brandbar a{color:var(--accent-dark);font-weight:600;text-decoration:none}
+header.top{margin:22px 0 18px}
+header.top h1{font-family:var(--font-display);font-weight:600;font-size:1.65rem;margin:0;color:var(--primary-dark);letter-spacing:-.01em}
+header.top p{margin:4px 0 0;color:var(--ink-soft);font-size:.92rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+.controls{display:grid;gap:14px;margin-bottom:16px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.lbl{font-size:.74rem;font-weight:700;letter-spacing:.06em;color:var(--ink-faint);text-transform:uppercase;margin-right:4px;min-width:74px}
+.seg{display:inline-flex;background:var(--surface-alt);border-radius:999px;padding:4px;gap:4px;flex-wrap:wrap}
+.seg button{border:0;background:transparent;padding:8px 16px;border-radius:999px;font:600 .9rem var(--font-body);color:var(--ink-soft);cursor:pointer}
+.seg button.on{background:var(--primary-dark);color:#fff}
+.seg button:disabled{opacity:.55;cursor:not-allowed}
+.chip{border:1px solid var(--border);background:var(--surface);padding:6px 12px;border-radius:999px;font:500 .84rem var(--font-body);color:var(--ink-soft);cursor:pointer}
+.chip.on{background:var(--primary-pale);border-color:var(--primary);color:var(--primary-dark);font-weight:600}
+.prog{font-size:.85rem;color:var(--ink-soft)}
+.bar{height:8px;background:var(--surface-alt);border-radius:99px;overflow:hidden;margin-top:6px}
+.bar>i{display:block;height:100%;background:var(--primary);width:0;transition:width .4s}
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.tag{display:inline-block;padding:4px 10px;border-radius:999px;font-size:.75rem;font-weight:700;background:var(--accent-pale);color:var(--accent-dark)}
+.tag.sec{background:var(--blue-pale);color:var(--blue)}
+.prompt{font-family:var(--font-display);font-size:1.15rem;color:var(--primary-dark);margin:8px 0 4px}
+.reaction{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:center;gap:6px 10px;padding:22px 8px 14px;margin:12px 0;background:var(--surface-alt);border-radius:14px}
+.sp{display:flex;flex-direction:column;align-items:center;min-width:52px;max-width:240px}
+.f{font-family:var(--font-mono);font-weight:600;font-size:1.05rem;color:var(--ink);white-space:nowrap;padding:6px 8px;border-radius:10px}
+.n{font-size:.74rem;color:var(--ink-soft);text-align:center;margin-top:2px;line-height:1.25}
+.op{font-family:var(--font-mono);font-size:1.1rem;color:var(--ink-faint);padding-top:6px}
+.arrow{display:flex;flex-direction:column;align-items:center;min-width:110px;padding:0 4px}
+.arrow .cond{font-size:.8rem;color:var(--primary-dark);font-weight:600;text-align:center;min-height:22px;padding:0 6px;border-radius:8px;line-height:1.3}
+.arrow .ln{font-family:var(--font-mono);font-size:1.4rem;line-height:1;color:var(--primary-dark);letter-spacing:-2px}
+.hole{background:var(--accent-pale);border:2px dashed var(--accent);color:var(--accent-dark);min-width:64px;text-align:center}
+.hole.ok{background:var(--success-pale);border:2px solid var(--success);color:var(--primary-dark)}
+.arrow .cond.hole{padding:3px 10px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:8px}
+.opt{border:1.5px solid var(--border);background:var(--surface);border-radius:12px;padding:12px 14px;font:600 1rem var(--font-mono);color:var(--ink);cursor:pointer;text-align:left;transition:border-color .15s,background .15s}
+.opt.txt{font-family:var(--font-body);font-size:.95rem}
+.opt:hover:not(:disabled){border-color:var(--primary)}
+.opt.bad{background:var(--danger-pale);border-color:var(--danger);color:#8a3b31}
+.opt.good{background:var(--success-pale);border-color:var(--success)}
+.opt:disabled{cursor:default}
+.fb{margin-top:14px;padding:12px 14px;border-radius:12px;font-size:.92rem;display:none}
+.fb.show{display:block}
+.fb.err{background:var(--danger-pale);color:#7a342b}
+.fb.ok{background:var(--success-pale);color:#244a3a}
+.fb b{font-weight:700}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.btn{border:0;border-radius:999px;padding:10px 18px;font:600 .92rem var(--font-body);cursor:pointer}
+.btn.pri{background:var(--primary-dark);color:#fff}
+.btn.sec{background:var(--surface-alt);color:var(--primary-dark)}
+.btn.hint{background:var(--accent-pale);color:var(--accent-dark)}
+.step2{margin-top:16px;display:none}
+.step2.show{display:block}
+.wbox{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.wbox input{flex:1 1 240px;min-width:0;border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;font:600 1.05rem var(--font-mono);color:var(--ink);background:var(--surface)}
+.wbox input:focus{outline:none;border-color:var(--primary)}
+.kb{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.kb button{border:1px solid var(--border);background:var(--surface-alt);border-radius:8px;padding:6px 11px;font:600 .95rem var(--font-mono);color:var(--primary-dark);cursor:pointer}
+.note{font-size:.8rem;color:var(--ink-faint);margin-top:6px}
+.done{text-align:center;padding:30px 10px}
+.done h2{font-family:var(--font-display);color:var(--primary-dark)}
+details.ref{margin-top:18px}
+details.ref summary{cursor:pointer;font-weight:700;color:var(--primary-dark);padding:4px 0}
+.reftab{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:10px}
+.reftab th{white-space:nowrap;background:var(--primary-dark);color:#fff;text-align:left;padding:7px 8px;font-weight:600}
+.reftab td{border-bottom:1px solid var(--border);padding:7px 8px;vertical-align:top}
+.reftab td.m{font-family:var(--font-mono);font-size:.8rem}
+.tblwrap{overflow-x:auto}
+.credit{margin-top:34px;text-align:right;font-size:.85rem;color:var(--ink-soft)}
+.credit p{margin:0}
+@media (max-width:560px){.f{font-size:.92rem}.arrow{min-width:84px}.reaction{padding:16px 4px 10px}}
+mark.mb{background:#F6D5D0;color:#8a2f24;border-radius:4px;padding:0 2px}
+mark.mf{background:#CFE8D8;color:#1f5a3a;border-radius:4px;padding:0 2px}
+.bonds{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:8px;font-size:.84rem}
+.dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.dot.mb{background:#E9A79D}.dot.mf{background:#8CC7A2}
+.mono{font-family:var(--font-mono)}
+.small{font-size:.82rem;color:var(--ink-soft)}
+.opt.sel{border-color:var(--blue);background:var(--blue-pale)}
+.opts.sm{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
+.cgrp{margin-top:12px}.ctit{font-size:.78rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint);margin:12px 0 4px}
+.qbox{background:var(--surface-alt);border-radius:14px;padding:22px 10px;text-align:center;margin:12px 0}
+.big{font-size:1.25rem;font-weight:600;color:var(--primary-dark)}
+.simgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:14px}
+.simgrid label{font-size:.78rem;font-weight:700;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.05em;display:flex;flex-direction:column;gap:4px}
+.simgrid select{font:500 .95rem var(--font-body);padding:10px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface);color:var(--ink);text-transform:none;letter-spacing:0}
+.simrow{display:flex;gap:10px;border-top:1px solid var(--border);padding:12px 0}
+.simn{flex:0 0 28px;height:28px;border-radius:50%;background:var(--primary-dark);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem}
+.simrow>div:last-child{flex:1;min-width:0}
+.chk{list-style:none;padding:0;margin:6px 0;font-size:.88rem}.chk li{margin:2px 0}.chk .g{color:#2f6b4a}.chk .b{color:#9a3b2f}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:16px}
+.rule{background:var(--accent-pale);border-radius:12px;padding:12px 14px}.rule h3{margin:0 0 6px;font-family:var(--font-display);color:var(--accent-dark)}.rule p{margin:4px 0;font-size:.9rem}
+.h2{font-family:var(--font-display);color:var(--primary-dark);margin:0 0 10px;font-size:1.3rem}.h3{font-family:var(--font-display);color:var(--primary-dark);margin:18px 0 6px}
+.minibar{display:inline-block;width:40px;height:7px;background:var(--surface-alt);border-radius:9px;overflow:hidden;margin-right:6px;vertical-align:middle}.minibar i{display:block;height:100%;background:var(--primary)}
+.badf{background:var(--danger-pale);color:#8a3b31;border-radius:99px;padding:1px 8px;font-weight:700}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.view-tabs{margin-bottom:14px}
+</style>
+</head>
+<body>
+<div class="lattice-bg"></div>
+<div class="shell">
+  <div class="brandbar"><a href="https://ivanpb26.github.io/Simuladores-educativos/">← Todos los simuladores</a>
+    <div class="brand-pill"><span class="brand-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><path d="M20.2 20.2c2.04-2.03.02-7.36-4.5-11.9-4.52-4.52-9.87-6.54-11.9-4.5-2.04 2.03-.02 7.36 4.5 11.9 4.52 4.52 9.87 6.54 11.9 4.5Z"/><path d="M15.7 15.7c4.52-4.54 6.54-9.87 4.5-11.9-2.03-2.04-7.36-.02-11.9 4.5-4.52 4.54-6.54 9.87-4.5 11.9 2.03 2.04 7.36.02 11.9-4.5Z"/></svg></span><span>Aprende Química con Profesor Iván PB-IA</span></div></div>
+
+  <header class="top">
+    <h1>Simulador de reacciones orgánicas</h1>
+    <p>Química 2.º Bachillerato · Unidad 4 · Completa, clasifica y nombra las reacciones orgánicas de la PAU.</p>
+  </header>
+
+  <div class="seg view-tabs" id="segView"><button data-v="pra" class="on">Practicar</button><button data-v="teo">Teoría</button><button data-v="pro">Progreso</button></div>
+
+  <section class="card controls">
+    <div class="row"><span class="lbl">Apartado</span>
+      <div class="seg" id="segSec"><button data-s="pau" class="on">Reacciones de PAU</button><button data-s="amp">Ampliación</button></div></div>
+    <div id="vPraCtl">
+    <div class="row"><span class="lbl">Modo</span>
+      <div class="seg" id="segMode"><button data-m="falta" class="on">¿Qué falta?</button><button data-m="cla">Clasifica</button><button data-m="nom">Nombra</button><button data-m="sim">Simulacro de examen</button></div></div>
+    <div class="row" id="rowResp" style="margin-top:14px"><span class="lbl">Responder</span>
+      <div class="seg" id="segResp"><button data-r="opc" class="on">Elegir entre opciones</button><button data-r="esc">Escribir la respuesta</button></div></div>
+    <div class="row" id="rowTipo" style="margin-top:14px"><span class="lbl">Tipo</span><div class="row" id="chips"></div></div>
+    <div style="margin-top:14px"><div class="prog" id="progTxt"></div><div class="bar"><i id="progBar"></i></div></div>
+    </div>
+  </section>
+
+  <div id="vPra"><main class="card" id="play"></main></div>
+  <div id="vTeo" class="card" style="display:none"></div>
+  <div id="vPro" class="card" style="display:none"></div>
+
+  <footer class="credit"><p>Simulador de reacciones orgánicas · Unidad 4</p><p>Bachillerato - Química<br>Desarrollado por <strong>Profesor Iván PB-IA</strong></p></footer>
+</div>
+<script>
+"use strict";
+/* Datos: r = reactivos, c = condiciones, p = productos ([fórmula, nombre]); k = tipo de la tabla PAU (1-16); rg = regla; a = huecos posibles con 3 distractores. */
+const PAU = [
+// ---------- SUSTITUCIÓN ----------
+{id:'s1',k:1,rg:'Ninguna',t:'Sustitución',r:[['CH₃–CH₃','etano'],['Cl₂','cloro']],c:'luz (hν)',p:[['CH₃–CH₂Cl','cloroetano'],['HCl','cloruro de hidrógeno']],
+ a:[['p0',['CH₂=CH₂','CH₃–CH₂OH','CH₂Cl–CH₂Cl']],['p1',['H₂','H₂O','Cl⁻']],['c',['Pt','H₂SO₄, calor','KOH en etanol']]],
+ h:'Un alcano con un halógeno y luz: un H se cambia por un átomo de halógeno.',
+ w:'Halogenación de un alcano (sustitución radicalaria): la luz rompe el Cl₂ en radicales y un H del etano se cambia por Cl. Sale HCl.'},
+{id:'s2',k:1,rg:'Ninguna',t:'Sustitución',r:[['CH₄','metano'],['Br₂','bromo']],c:'luz (hν)',p:[['CH₃Br','bromometano'],['HBr','bromuro de hidrógeno']],
+ a:[['p0',['CH₂Br₂','CH₃OH','CBr₄']],['r1',['HBr','H₂','NaBr']]],
+ h:'Con una molécula de Br₂ se cambia un solo H.',
+ w:'Sustitución de un H del metano por Br. Con una molécula de halógeno se forma el derivado monohalogenado y HBr.'},
+{id:'s3',k:2,rg:'Ninguna',t:'Sustitución',r:[['CH₃–CH₂–CH₂–CH₂–CH₂Cl','1-cloropentano'],['NaOH','hidróxido de sodio']],c:'medio acuoso',p:[['CH₃–CH₂–CH₂–CH₂–CH₂OH','pentan-1-ol'],['NaCl','cloruro de sodio']],
+ a:[['p0',['CH₃–CH₂–CH₂–CH=CH₂','CH₃–CH₂–CH₂–CH₂–CHO','CH₃–CHOH–CH₂–CH₂–CH₃']],['c',['KOH en etanol, calor','luz (hν)','H₂SO₄, calor']],['p1',['HCl','Cl₂','H₂O']]],
+ h:'NaOH en agua: el OH⁻ ocupa el sitio del halógeno.',
+ w:'Sustitución nucleófila: el OH⁻ sustituye al Cl en el mismo carbono y se obtiene el alcohol. En medio acuoso hay sustitución; con KOH en alcohol y calor habría eliminación (alqueno).'},
+{id:'s4',k:2,rg:'Ninguna',t:'Sustitución',r:[['CH₃–CHBr–CH₃','2-bromopropano'],['NaOH','hidróxido de sodio']],c:'medio acuoso',p:[['CH₃–CHOH–CH₃','propan-2-ol'],['NaBr','bromuro de sodio']],
+ a:[['p0',['CH₂OH–CH₂–CH₃','CH₂=CH–CH₃','CH₃–CO–CH₃']],['p1',['HBr','Br₂','NaOH']]],
+ h:'El OH entra justo donde estaba el Br.',
+ w:'El OH⁻ sustituye al Br en el C2: se forma propan-2-ol y NaBr. El grupo OH no cambia de carbono.'},
+{id:'s5',k:3,rg:'Ninguna',t:'Sustitución',r:[['CH₃–CHOH–CH₂–CH₃','butan-2-ol'],['HF','fluoruro de hidrógeno']],c:'H⁺',p:[['CH₃–CHF–CH₂–CH₃','2-fluorobutano'],['H₂O','agua']],
+ a:[['p0',['CH₂F–CH₂–CH₂–CH₃','CH₃–CH=CH–CH₃','CH₃–CO–CH₂–CH₃']],['r1',['F₂','NaF','H₂']],['p1',['H₂','HF','OH⁻']]],
+ h:'Alcohol + haluro de hidrógeno: el OH sale y entra el halógeno.',
+ w:'El grupo OH del alcohol se sustituye por F en el mismo carbono (C2). El OH sale junto con el H del HF formando agua.'},
+{id:'s6',k:3,rg:'Ninguna',t:'Sustitución',r:[['CH₃–CH₂OH','etanol'],['HBr','bromuro de hidrógeno']],c:'H⁺',p:[['CH₃–CH₂Br','bromoetano'],['H₂O','agua']],
+ a:[['p0',['CH₂=CH₂','CH₃–CHO','CH₃–CH₂–O–CH₂–CH₃']],['r0',['CH₂=CH₂','CH₃–CHO','CH₃–CH₃']]],
+ h:'¿Qué compuesto tiene un OH que puede cambiarse por Br y soltar agua?',
+ w:'Alcohol + HX → derivado halogenado + H₂O. El Br ocupa el lugar del OH.'},
+// ---------- ADICIÓN ----------
+{id:'a1',k:4,rg:'Ninguna',t:'Adición',r:[['CH₃–C≡C–CH₂–CH₃','pent-2-ino'],['H₂','hidrógeno']],c:'Pt',p:[['CH₃–CH=CH–CH₂–CH₃','pent-2-eno']],
+ a:[['p0',['CH₃–CH₂–CH₂–CH₂–CH₃','CH₂=CH–CH₂–CH₂–CH₃','CH₃–C≡C–CH₃']],['c',['luz (hν)','KOH en etanol','K₂Cr₂O₇, H⁺']]],
+ h:'Una molécula de H₂ rompe uno de los dos enlaces π del triple enlace.',
+ w:'Hidrogenación con catalizador (Pt): con un H₂ el triple enlace pasa a doble y el doble enlace sigue en la misma posición (C2).'},
+{id:'a2',k:4,rg:'Ninguna',t:'Adición',r:[['CH₃–CH=CH–CH₂–CH₃','pent-2-eno'],['H₂','hidrógeno']],c:'Pt',p:[['CH₃–CH₂–CH₂–CH₂–CH₃','pentano']],
+ a:[['p0',['CH₃–C≡C–CH₂–CH₃','CH₂=CH–CH₂–CH₂–CH₃','CH₃–CHOH–CH₂–CH₂–CH₃']],['r1',['H₂O','O₂','HCl']]],
+ h:'El alqueno gana dos H y desaparece el doble enlace.',
+ w:'Segunda hidrogenación: el alqueno se convierte en el alcano saturado (pentano).'},
+{id:'a3',k:5,rg:'Ninguna',t:'Adición',r:[['CH≡C–CH₂–CH₃','but-1-ino'],['I₂','yodo']],c:'',p:[['CHI=CI–CH₂–CH₃','1,2-diyodobut-1-eno']],
+ a:[['p0',['CH₂I–CH₂–CH₂–CH₃','CI≡C–CH₂–CH₃','CH₃–CI₂–CH₂–CH₃']]],
+ h:'Cada átomo de I se une a uno de los dos carbonos del triple enlace.',
+ w:'Halogenación de un alquino: con una molécula de I₂ se añade un I a cada C del triple enlace (C1 y C2), que pasa a doble enlace.'},
+{id:'a4',k:5,rg:'Ninguna',t:'Adición',r:[['CHI=CI–CH₂–CH₃','1,2-diyodobut-1-eno'],['I₂','yodo']],c:'',p:[['CHI₂–CI₂–CH₂–CH₃','1,1,2,2-tetrayodobutano']],
+ a:[['p0',['CHI=CI–CHI–CH₃','CH₂I–CHI–CH₂–CH₃','CI≡C–CH₂–CH₃']]],
+ h:'Segunda adición sobre el doble enlace que queda.',
+ w:'La segunda molécula de I₂ se suma al doble enlace: C1 y C2 quedan con dos I cada uno y la cadena queda saturada.'},
+{id:'a5',k:5,rg:'Ninguna',t:'Adición',r:[['CH₂=CH–CH₃','propeno'],['Br₂','bromo']],c:'',p:[['CH₂Br–CHBr–CH₃','1,2-dibromopropano']],
+ a:[['p0',['CH₃–CBr₂–CH₃','CH₂Br–CH₂–CH₂Br','CH₂=CBr–CH₃']],['r1',['HBr','NaBr','Br⁻']]],
+ h:'Los dos Br van a los dos carbonos del doble enlace.',
+ w:'Halogenación de un alqueno: cada Br se une a uno de los C del doble enlace (C1 y C2) y desaparece el doble enlace.'},
+{id:'a6',k:6,rg:'Markovnikov',t:'Adición',r:[['CH₂=CH–CH₃','propeno'],['H₂O','agua']],c:'H₂SO₄',p:[['CH₃–CHOH–CH₃','propan-2-ol']],
+ a:[['p0',['CH₂OH–CH₂–CH₃','CH₃–CH₂–CHO','CH₂OH–CHOH–CH₃']],['c',['luz (hν)','NaOH, medio acuoso','KOH en etanol']]],
+ h:'Regla de Markovnikov: el H va al carbono del doble enlace que ya tiene más H.',
+ w:'Hidratación (Markovnikov): el H se une al C1 (CH₂, más hidrogenado) y el OH al C2. Producto mayoritario: propan-2-ol.'},
+{id:'a7',k:7,rg:'Markovnikov',t:'Adición',r:[['CH₂=CH–CH₂–CH₃','but-1-eno'],['HBr','bromuro de hidrógeno']],c:'',p:[['CH₃–CHBr–CH₂–CH₃','2-bromobutano']],
+ a:[['p0',['CH₂Br–CH₂–CH₂–CH₃','CH₂Br–CHBr–CH₂–CH₃','CH₃–CH=CH–CH₃']],['r1',['Br₂','H₂','NaBr']]],
+ h:'Markovnikov: ¿qué carbono del doble enlace tiene más H?',
+ w:'Adición de HX (Markovnikov): el H va al C1 (=CH₂) y el Br al C2. Producto mayoritario: 2-bromobutano.'},
+{id:'a8',k:7,rg:'Markovnikov',t:'Adición',r:[['CH₂=C(CH₃)–CH₃','metilpropeno'],['HCl','cloruro de hidrógeno']],c:'',p:[['(CH₃)₃CCl','2-cloro-2-metilpropano']],
+ a:[['p0',['CH₂Cl–CH(CH₃)–CH₃','CH₂Cl–CCl(CH₃)–CH₃','CH₃–CCl=CH₂']]],
+ h:'Markovnikov: el C2 no tiene ningún H; el C1 tiene dos.',
+ w:'El H se une al C1 (=CH₂) y el Cl al C2, el carbono terciario: se obtiene 2-cloro-2-metilpropano.'},
+{id:'a9',k:6,rg:'Ninguna',t:'Adición',r:[['CH₃–CH=CH–CH₃','but-2-eno'],['H₂O','agua']],c:'H₂SO₄',p:[['CH₃–CHOH–CH₂–CH₃','butan-2-ol']],
+ a:[['p0',['CH₂OH–CH₂–CH₂–CH₃','CH₃–CO–CH₂–CH₃','CH₃–CHOH–CHOH–CH₃']],['r0',['CH₃–CH₂–CH₂–CH₃','CH₃–C≡C–CH₃','CH₃–CHO']]],
+ h:'Alqueno simétrico: da igual a qué carbono vaya el OH.',
+ w:'Hidratación del but-2-eno: el OH entra en uno de los C del doble enlace (C2) y el H en el otro. Al ser simétrico solo hay un producto: butan-2-ol.'},
+// ---------- ELIMINACIÓN ----------
+{id:'e1',k:8,rg:'Saytzev',t:'Eliminación',r:[['CH₃–CHOH–CH₂–CH₂–CH₃','pentan-2-ol']],c:'H₂SO₄, calor',p:[['CH₃–CH=CH–CH₂–CH₃','pent-2-eno'],['H₂O','agua']],
+ a:[['p0',['CH₂=CH–CH₂–CH₂–CH₃','CH₃–CO–CH₂–CH₂–CH₃','CH₃–CH₂–CH₂–CH₂–CH₃']],['p1',['H₂','O₂','H₂SO₄']],['c',['NaOH, medio acuoso','Pt','K₂Cr₂O₇, H⁺']]],
+ h:'Regla de Saytzev: el H sale del carbono vecino que tiene menos H.',
+ w:'Deshidratación (Saytzev): sale el OH del C2 y un H del C3 (CH₂, menos hidrogenado que el CH₃ del C1). Se forma el alqueno más sustituido: pent-2-eno.'},
+{id:'e2',k:9,rg:'Saytzev',t:'Eliminación',r:[['CH₃–CHCl–CH₂–CH₂–CH₃','2-cloropentano'],['KOH','hidróxido de potasio']],c:'etanol, calor',p:[['CH₃–CH=CH–CH₂–CH₃','pent-2-eno'],['HCl','(con el KOH: KCl + H₂O)']],
+ a:[['p0',['CH₃–CHOH–CH₂–CH₂–CH₃','CH₂=CH–CH₂–CH₂–CH₃','CH₃–CH₂–CH₂–CH₂–CH₃']],['c',['medio acuoso','luz (hν)','H₂, Pt']]],
+ h:'KOH en alcohol y calor no sustituye: elimina. Aplica Saytzev.',
+ w:'Deshidrohalogenación (Saytzev): sale el Cl del C2 y un H del C3. Producto mayoritario: pent-2-eno. En la tabla de la PAU se escribe + HX; con KOH se neutraliza a KCl + H₂O.'},
+{id:'e3',k:8,rg:'Ninguna',t:'Eliminación',r:[['CH₃–CH₂–CH₂OH','propan-1-ol']],c:'H₂SO₄, calor',p:[['CH₂=CH–CH₃','propeno'],['H₂O','agua']],
+ a:[['p0',['CH₃–CH₂–CHO','CH₃–CH₂–CH₃','CH₃–CH₂–CH₂–O–CH₂–CH₂–CH₃']],['r0',['CH₃–CH₂–CH₃','CH₃–CH₂–CHO','CH₃–CH₂–COOH']]],
+ h:'Del alcohol sale una molécula de agua y aparece un doble enlace.',
+ w:'Deshidratación: sale el OH del C1 y un H del C2. Solo es posible un alqueno: propeno.'},
+{id:'e4',k:9,rg:'Saytzev',t:'Eliminación',r:[['CH₃–CHBr–CH₂–CH₃','2-bromobutano'],['KOH','hidróxido de potasio']],c:'etanol, calor',p:[['CH₃–CH=CH–CH₃','but-2-eno'],['HBr','(con el KOH: KBr + H₂O)']],
+ a:[['p0',['CH₂=CH–CH₂–CH₃','CH₃–CHOH–CH₂–CH₃','CH₃–CH₂–CH₂–CH₃']]],
+ h:'Saytzev: compara el C1 (CH₃) y el C3 (CH₂).',
+ w:'El H sale del C3 (tiene menos H que el C1): el producto mayoritario es but-2-eno, el alqueno más sustituido.'},
+// ---------- CONDENSACIÓN ----------
+{id:'c1',k:10,rg:'Ninguna',t:'Condensación',r:[['CH₃–CH₂–COOH','ácido propanoico'],['CH₃–CH₂OH','etanol']],c:'H⁺',p:[['CH₃–CH₂–COO–CH₂–CH₃','propanoato de etilo'],['H₂O','agua']],
+ a:[['p0',['CH₃–COO–CH₂–CH₂–CH₃','CH₃–CH₂–O–CH₂–CH₃','CH₃–CH₂–CO–CH₂–CH₃']],['p1',['H₂','O₂','CO₂']],['r1',['CH₃–CHO','CH₃–O–CH₃','CH₃–CH₃']]],
+ h:'Ácido + alcohol: se unen y sale agua. La parte «-ato» viene del ácido.',
+ w:'Esterificación: el OH del ácido y el H del alcohol forman agua. La parte del ácido da el nombre «propanoato» y la del alcohol, «de etilo».'},
+{id:'c2',k:10,rg:'Ninguna',t:'Condensación',r:[['CH₃–COOH','ácido etanoico'],['CH₃OH','metanol']],c:'H⁺',p:[['CH₃–COO–CH₃','etanoato de metilo'],['H₂O','agua']],
+ a:[['p0',['CH₃–O–CH₃','CH₃–CO–CH₃','H–COO–CH₂–CH₃']],['r0',['CH₃–CHO','CH₃–CH₂OH','CH₃–CO–CH₃']]],
+ h:'¿Qué ácido aporta la parte CH₃–COO–?',
+ w:'Esterificación entre ácido etanoico (acético) y metanol: se forma etanoato de metilo y agua.'},
+{id:'c3',k:10,rg:'Ninguna',t:'Condensación',r:[['H–COOH','ácido metanoico'],['CH₃–CH₂OH','etanol']],c:'H⁺',p:[['H–COO–CH₂–CH₃','metanoato de etilo'],['H₂O','agua']],
+ a:[['p0',['CH₃–COO–CH₃','H–CO–O–H','CH₃–CH₂–O–CH₃']]],
+ h:'El ácido tiene un solo carbono.',
+ w:'Ácido metanoico (fórmico) + etanol → metanoato de etilo + agua.'},
+{id:'c4',k:11,rg:'Ninguna',t:'Condensación',r:[['CH₃–COOH','ácido etanoico'],['NH₃','amoníaco']],c:'calor',p:[['CH₃–CONH₂','etanamida'],['H₂O','agua']],
+ a:[['p0',['CH₃–CH₂–NH₂','CH₃–COONH₄','CH₃–CN']],['r1',['NaOH','CH₃–NH₂','HNO₃']]],
+ h:'El NH₂ ocupa el lugar del OH del ácido.',
+ w:'Formación de una amida: el OH del ácido y un H del NH₃ salen como agua y queda el grupo –CONH₂ (etanamida o acetamida).'},
+{id:'c5',k:11,rg:'Ninguna',t:'Condensación',r:[['CH₃–CH₂–COOH','ácido propanoico'],['CH₃–CH₂–NH₂','etanamina']],c:'calor',p:[['CH₃–CH₂–CO–NH–CH₂–CH₃','N-etilpropanamida'],['H₂O','agua']],
+ a:[['p0',['CH₃–CO–NH–CH₂–CH₂–CH₃','CH₃–CH₂–COO–CH₂–CH₃','CH₃–CH₂–NH–CH₂–CH₃']]],
+ h:'La cadena del ácido lleva el C=O; el grupo de la amina queda en el N.',
+ w:'Ácido + amina primaria → amida N-sustituida + agua. El grupo etilo de la amina queda unido al N: N-etilpropanamida.'},
+{id:'c6',k:11,rg:'Ninguna',t:'Condensación',r:[['CH₃–COOH','ácido etanoico'],['CH₃–NH–CH₂–CH₃','N-metiletanamina']],c:'calor',p:[['CH₃–CO–N(CH₃)–CH₂–CH₃','N-etil-N-metiletanamida'],['H₂O','agua']],
+ a:[['p0',['CH₃–CO–NH–CH₃','CH₃–COO–CH₂–CH₃','CH₃–N(CH₃)–CH₂–CH₃']]],
+ h:'La amina secundaria pierde su único H del N.',
+ w:'Con una amina secundaria el N pierde su H y conserva los dos grupos (metilo y etilo): N-etil-N-metiletanamida.'},
+// ---------- COMBUSTIÓN ----------
+{id:'q1',k:12,rg:'Ninguna',t:'Combustión',r:[['CH₃–CH₂–CH₃','propano'],['5 O₂','oxígeno']],c:'',p:[['3 CO₂','dióxido de carbono'],['4 H₂O','agua']],
+ a:[['r1',['3 O₂','7/2 O₂','10 O₂']],['p1',['3 H₂O','8 H₂O','2 H₂O']],['p0',['3 CO','3 C','CO₂']]],
+ h:'C₃H₈: 3 C → 3 CO₂; 8 H → 4 H₂O. Cuenta los O.',
+ w:'C₃H₈ + 5 O₂ → 3 CO₂ + 4 H₂O. Átomos de O en los productos: 6 + 4 = 10, es decir, 5 O₂.'},
+{id:'q2',k:12,rg:'Ninguna',t:'Combustión',r:[['CH₃–CHOH–CH₂–CH₃','butan-2-ol'],['6 O₂','oxígeno']],c:'',p:[['4 CO₂','dióxido de carbono'],['5 H₂O','agua']],
+ a:[['r1',['13/2 O₂','5 O₂','12 O₂']],['p1',['4 H₂O','10 H₂O','6 H₂O']],['p0',['4 CO','2 CO₂','8 CO₂']]],
+ h:'El alcohol ya aporta un átomo de O.',
+ w:'C₄H₁₀O + 6 O₂ → 4 CO₂ + 5 H₂O. Productos: 8 + 5 = 13 O; el alcohol aporta 1, faltan 12 O = 6 O₂.'},
+{id:'q3',k:12,rg:'Ninguna',t:'Combustión',r:[['CH₄','metano'],['2 O₂','oxígeno']],c:'',p:[['CO₂','dióxido de carbono'],['2 H₂O','agua']],
+ a:[['p1',['H₂O','4 H₂O','2 H₂']],['p0',['CO','C','CH₃OH']]],
+ h:'4 H forman 2 moléculas de agua.',
+ w:'CH₄ + 2 O₂ → CO₂ + 2 H₂O. En una combustión completa todo el C pasa a CO₂ y todo el H a H₂O.'},
+{id:'q4',k:12,rg:'Ninguna',t:'Combustión',r:[['CH₃–CH₂OH','etanol'],['3 O₂','oxígeno']],c:'',p:[['2 CO₂','dióxido de carbono'],['3 H₂O','agua']],
+ a:[['r1',['7/2 O₂','2 O₂','6 O₂']],['p0',['CO₂','2 CO','CH₃–COOH']]],
+ h:'C₂H₆O: 2 CO₂ y 3 H₂O. Resta el O del etanol.',
+ w:'C₂H₆O + 3 O₂ → 2 CO₂ + 3 H₂O. Productos: 4 + 3 = 7 O; el etanol aporta 1, faltan 6 O = 3 O₂.'},
+// ---------- OXIDACIÓN ----------
+{id:'o1',k:13,rg:'Ninguna',t:'Oxidación',r:[['CH₃–CH₂–CH₂OH','propan-1-ol']],c:'K₂Cr₂O₇, H⁺',p:[['CH₃–CH₂–CHO','propanal']],
+ a:[['p0',['CH₃–CO–CH₃','CH₂=CH–CH₃','CH₃–CH₂–CH₃']],['c',['H₂, Pt','H₂SO₄, calor','NaOH, medio acuoso']]],
+ h:'Alcohol primario: primer paso de la oxidación.',
+ w:'Un alcohol primario se oxida primero a aldehído (propanal). Si la oxidación continúa, el aldehído pasa a ácido propanoico.'},
+{id:'o2',k:13,rg:'Ninguna',t:'Oxidación',r:[['CH₃–CH₂–CHO','propanal']],c:'K₂Cr₂O₇, H⁺',p:[['CH₃–CH₂–COOH','ácido propanoico']],
+ a:[['p0',['CH₃–CH₂–CH₂OH','CH₃–CO–CH₃','CH₃–CH₂–COO–CH₃']],['r0',['CH₃–CO–CH₃','CH₃–CHOH–CH₃','CH₃–CH₂–CH₃']]],
+ h:'El aldehído gana un O: el –CHO pasa a –COOH.',
+ w:'Un aldehído se oxida fácilmente a ácido carboxílico. Las cetonas, en cambio, no se oxidan en estas condiciones.'},
+{id:'o3',k:14,rg:'Ninguna',t:'Oxidación',r:[['CH₃–CHOH–CH₂–CH₂–CH₃','pentan-2-ol']],c:'K₂Cr₂O₇, H⁺',p:[['CH₃–CO–CH₂–CH₂–CH₃','pentan-2-ona']],
+ a:[['p0',['CH₃–CH₂–CH₂–CH₂–CHO','CH₃–CH=CH–CH₂–CH₃','CH₃–CH₂–CH₂–CH₂–COOH']]],
+ h:'Alcohol secundario: el OH está en un C unido a dos C.',
+ w:'Un alcohol secundario se oxida a cetona, con el C=O en el mismo carbono: pentan-2-ona. No sigue oxidándose.'},
+{id:'o4',k:14,rg:'Ninguna',t:'Oxidación',r:[['CH₃–CHOH–CH₃','propan-2-ol']],c:'KMnO₄, H⁺',p:[['CH₃–CO–CH₃','propanona']],
+ a:[['r0',['CH₃–CH₂–CH₂OH','CH₃–CH₂–CHO','CH₂=CH–CH₃']],['p0',['CH₃–CH₂–CHO','CH₃–CH₂–COOH','CH₂=CH–CH₃']]],
+ h:'¿Qué alcohol tiene el OH en el carbono central?',
+ w:'La propanona (acetona) se obtiene al oxidar un alcohol secundario: propan-2-ol. El propan-1-ol daría propanal.'},
+{id:'o5',k:13,rg:'Ninguna',t:'Oxidación',r:[['CH₃–CH₂–CH₂–CH₂OH','butan-1-ol']],c:'KMnO₄, H⁺ (oxidación completa)',p:[['CH₃–CH₂–CH₂–COOH','ácido butanoico']],
+ a:[['p0',['CH₃–CO–CH₂–CH₃','CH₃–CH₂–CH=CH₂','CH₃–CH₂–CH₂–COO–CH₃']]],
+ h:'Alcohol primario → aldehído → ácido.',
+ w:'Con oxidación completa el alcohol primario pasa por el aldehído (butanal) y termina como ácido butanoico.'},
+// ---------- REDUCCIÓN ----------
+{id:'d1',k:15,rg:'Ninguna',t:'Reducción',r:[['CH₃–CH₂–CHO','propanal'],['H₂','hidrógeno']],c:'Pt',p:[['CH₃–CH₂–CH₂OH','propan-1-ol']],
+ a:[['p0',['CH₃–CHOH–CH₃','CH₃–CH₂–COOH','CH₃–CH₂–CH₃']],['r0',['CH₃–CO–CH₃','CH₃–CH₂–COOH','CH₂=CH–CH₃']]],
+ h:'Un aldehído se reduce al alcohol del mismo tipo de carbono.',
+ w:'Reducción (hidrogenación del C=O): el aldehído gana dos H y se obtiene el alcohol primario, propan-1-ol.'},
+{id:'d2',k:16,rg:'Ninguna',t:'Reducción',r:[['CH₃–CO–CH₂–CH₂–CH₂–CH₃','hexan-2-ona'],['H₂','hidrógeno']],c:'Ni',p:[['CH₃–CHOH–CH₂–CH₂–CH₂–CH₃','hexan-2-ol']],
+ a:[['p0',['CH₂OH–CH₂–CH₂–CH₂–CH₂–CH₃','CH₃–CH=CH–CH₂–CH₂–CH₃','CH₃–CO–CH₂–CH₂–CH₂–COOH']],['c',['K₂Cr₂O₇, H⁺','luz (hν)','H₂SO₄, calor']]],
+ h:'Cetona + H₂: el C=O pasa a CH–OH en el mismo carbono.',
+ w:'La reducción de una cetona da un alcohol secundario con el OH en la misma posición: hexan-2-ol.'},
+{id:'d3',k:16,rg:'Ninguna',t:'Reducción',r:[['CH₃–CO–CH₂–CH₃','butanona'],['H₂','hidrógeno']],c:'Pt',p:[['CH₃–CHOH–CH₂–CH₃','butan-2-ol']],
+ a:[['r0',['CH₃–CH₂–CH₂–CHO','CH₃–CH=CH–CH₃','CH₃–CH₂–COOH']],['r1',['O₂','H₂O','HCl']],['p0',['CH₂OH–CH₂–CH₂–CH₃','CH₃–CH₂–CH₂–CHO','CH₃–CH=CH–CH₃']]],
+ h:'Un alcohol secundario procede de una cetona.',
+ w:'Butanona + H₂ (catalizador) → butan-2-ol. Es la reacción inversa de la oxidación del alcohol secundario.'},
+// ---------- ejemplos añadidos ----------
+{id:'s7',k:1,rg:'Ninguna',t:'Sustitución',r:[['CH₄','metano'],['Cl₂','cloro']],c:'luz (hν)',p:[['CH₃Cl','clorometano'],['HCl','cloruro de hidrógeno']],
+ a:[['p0',['CCl₄','CH₃OH','CH₃–CH₃']],['p1',['H₂','Cl⁻','H₂O']]],
+ h:'Con una molécula de Cl₂ se cambia un solo H.',w:'Halogenación del metano: un H se sustituye por Cl y sale HCl.'},
+{id:'s8',k:1,rg:'Ninguna',t:'Sustitución',r:[['CH₃–CH₃','etano'],['Br₂','bromo']],c:'luz (hν)',p:[['CH₃–CH₂Br','bromoetano'],['HBr','bromuro de hidrógeno']],
+ a:[['p0',['CH₂Br–CH₂Br','CH₂=CH₂','CH₃–CH₂OH']],['c',['H₂SO₄','Pt','medio acuoso']]],
+ h:'La luz rompe el Br₂ en radicales.',w:'Sustitución radicalaria: un H del etano se cambia por Br. Se forma bromoetano y HBr.'},
+{id:'s9',k:1,rg:'Ninguna',t:'Sustitución',r:[['C₆H₁₂','ciclohexano'],['Cl₂','cloro']],c:'luz (hν)',p:[['C₆H₁₁Cl','clorociclohexano'],['HCl','cloruro de hidrógeno']],
+ a:[['p0',['C₆H₁₂Cl₂','C₆H₅Cl','C₆H₁₀']]],
+ h:'El ciclohexano es un alcano cíclico: se comporta como un alcano.',w:'Un H del anillo se sustituye por Cl: clorociclohexano y HCl. No es benceno, así que no hace falta FeCl₃.'},
+{id:'s10',k:2,rg:'Ninguna',t:'Sustitución',r:[['CH₃–CH₂Br','bromoetano'],['NaOH','hidróxido de sodio']],c:'medio acuoso',p:[['CH₃–CH₂OH','etanol'],['NaBr','bromuro de sodio']],
+ a:[['p0',['CH₂=CH₂','CH₃–CHO','CH₃–O–CH₃']],['p1',['HBr','Br₂','H₂O']]],
+ h:'En agua, el OH⁻ ocupa el sitio del Br.',w:'Sustitución nucleófila: el OH⁻ desplaza al Br⁻. Se obtiene etanol y NaBr.'},
+{id:'s11',k:2,rg:'Ninguna',t:'Sustitución',r:[['CH₃I','yodometano'],['NaOH','hidróxido de sodio']],c:'medio acuoso',p:[['CH₃OH','metanol'],['NaI','yoduro de sodio']],
+ a:[['p0',['CH₄','H–CHO','CH₃–O–CH₃']],['r0',['CH₄','CH₃–CH₃','H–CHO']]],
+ h:'Derivado halogenado + NaOH acuoso → alcohol.',w:'El OH⁻ sustituye al I: metanol y NaI.'},
+{id:'s12',k:2,rg:'Ninguna',t:'Sustitución',r:[['CH₃–CHCl–CH₂–CH₃','2-clorobutano'],['KOH','hidróxido de potasio']],c:'medio acuoso',p:[['CH₃–CHOH–CH₂–CH₃','butan-2-ol'],['KCl','cloruro de potasio']],
+ a:[['p0',['CH₃–CH=CH–CH₃','CH₂OH–CH₂–CH₂–CH₃','CH₃–CO–CH₂–CH₃']],['c',['etanol, calor','luz (hν)','Pt']]],
+ h:'Mismo KOH, pero en agua: sustitución, no eliminación.',w:'En medio acuoso el OH⁻ sustituye al Cl en el C2: butan-2-ol. Con KOH en etanol y calor se formaría but-2-eno.'},
+{id:'s13',k:3,rg:'Ninguna',t:'Sustitución',r:[['CH₃OH','metanol'],['HCl','cloruro de hidrógeno']],c:'H⁺',p:[['CH₃Cl','clorometano'],['H₂O','agua']],
+ a:[['p0',['CH₄','CH₃–O–CH₃','H–CHO']],['r1',['Cl₂','NaCl','H₂']]],
+ h:'El OH sale como agua y entra el Cl.',w:'Alcohol + HCl → derivado halogenado + H₂O: clorometano.'},
+{id:'s14',k:3,rg:'Ninguna',t:'Sustitución',r:[['CH₃–CH₂–CH₂OH','propan-1-ol'],['HI','yoduro de hidrógeno']],c:'H⁺',p:[['CH₃–CH₂–CH₂I','1-yodopropano'],['H₂O','agua']],
+ a:[['p0',['CH₃–CHI–CH₃','CH₂=CH–CH₃','CH₃–CH₂–CHO']]],
+ h:'El I entra en el mismo carbono donde estaba el OH.',w:'El I sustituye al OH en el C1: 1-yodopropano y agua.'},
+{id:'s15',k:3,rg:'Ninguna',t:'Sustitución',r:[['CH₃–CHOH–CH₃','propan-2-ol'],['HCl','cloruro de hidrógeno']],c:'H⁺',p:[['CH₃–CHCl–CH₃','2-cloropropano'],['H₂O','agua']],
+ a:[['p0',['CH₂Cl–CH₂–CH₃','CH₃–CO–CH₃','CH₂=CH–CH₃']],['p1',['H₂','Cl₂','O₂']]],
+ h:'Posición del OH = posición del Cl.',w:'El Cl sustituye al OH del C2: 2-cloropropano y agua.'},
+{id:'a10',k:4,rg:'Ninguna',t:'Adición',r:[['CH₂=CH₂','eteno'],['H₂','hidrógeno']],c:'Ni',p:[['CH₃–CH₃','etano']],
+ a:[['p0',['CH≡CH','CH₃–CH₂OH','CH₄']],['c',['luz (hν)','H₂SO₄','medio acuoso']]],
+ h:'Desaparece el doble enlace y entran dos H.',w:'Hidrogenación catalítica (Ni, Pt o Pd): el eteno se convierte en etano.'},
+{id:'a11',k:4,rg:'Ninguna',t:'Adición',r:[['CH≡CH','etino'],['H₂','hidrógeno']],c:'Pt',p:[['CH₂=CH₂','eteno']],
+ a:[['p0',['CH₃–CH₃','CH₃–CHO','CH₂=CH–CH₃']]],
+ h:'Una molécula de H₂: el triple pasa a doble.',w:'Con un H₂ el etino se transforma en eteno; con un segundo H₂ llegaría a etano.'},
+{id:'a12',k:4,rg:'Ninguna',t:'Adición',r:[['CH₂=CH–CH₂–CH₃','but-1-eno'],['H₂','hidrógeno']],c:'Pt',p:[['CH₃–CH₂–CH₂–CH₃','butano']],
+ a:[['p0',['CH₃–CH=CH–CH₃','CH≡C–CH₂–CH₃','CH₃–CHOH–CH₂–CH₃']],['r1',['H₂O','HCl','O₂']]],
+ h:'El alqueno se satura.',w:'Hidrogenación: but-1-eno + H₂ → butano.'},
+{id:'a13',k:5,rg:'Ninguna',t:'Adición',r:[['CH₂=CH₂','eteno'],['Cl₂','cloro']],c:'',p:[['CH₂Cl–CH₂Cl','1,2-dicloroetano']],
+ a:[['p0',['CH₃–CHCl₂','CH₃–CH₂Cl','CHCl=CHCl']],['r1',['HCl','NaCl','Cl⁻']]],
+ h:'Un Cl en cada carbono del doble enlace.',w:'Halogenación del eteno: 1,2-dicloroetano. Desaparece el doble enlace.'},
+{id:'a14',k:5,rg:'Ninguna',t:'Adición',r:[['CH₃–CH=CH–CH₃','but-2-eno'],['Br₂','bromo']],c:'',p:[['CH₃–CHBr–CHBr–CH₃','2,3-dibromobutano']],
+ a:[['p0',['CH₂Br–CH₂–CH₂–CH₂Br','CH₃–CBr₂–CH₂–CH₃','CH₃–CHBr–CH₂–CH₃']]],
+ h:'Los Br van a los carbonos que tenían el doble enlace (C2 y C3).',w:'Adición de Br₂ al but-2-eno: 2,3-dibromobutano.'},
+{id:'a15',k:5,rg:'Ninguna',t:'Adición',r:[['CH≡CH','etino'],['Br₂','bromo']],c:'',p:[['CHBr=CHBr','1,2-dibromoeteno']],
+ a:[['p0',['CH₂Br–CH₂Br','CH₂=CBr₂','CHBr₂–CHBr₂']]],
+ h:'Una sola molécula de Br₂: queda un doble enlace.',w:'Primera adición al etino: 1,2-dibromoeteno. Con otro Br₂ se formaría 1,1,2,2-tetrabromoetano.'},
+{id:'a16',k:6,rg:'Ninguna',t:'Adición',r:[['CH₂=CH₂','eteno'],['H₂O','agua']],c:'H₂SO₄',p:[['CH₃–CH₂OH','etanol']],
+ a:[['p0',['CH₂OH–CH₂OH','CH₃–CHO','CH₃–O–CH₃']],['c',['Pt','luz (hν)','etanol, calor']]],
+ h:'Un H a un carbono y el OH al otro.',w:'Hidratación del eteno: etanol. Como el alqueno es simétrico, no hace falta aplicar Markovnikov.'},
+{id:'a17',k:6,rg:'Markovnikov',t:'Adición',r:[['CH₂=CH–CH₂–CH₃','but-1-eno'],['H₂O','agua']],c:'H₂SO₄',p:[['CH₃–CHOH–CH₂–CH₃','butan-2-ol']],
+ a:[['p0',['CH₂OH–CH₂–CH₂–CH₃','CH₃–CO–CH₂–CH₃','CH₃–CH₂–CH₂–CHO']]],
+ h:'Markovnikov: el H va al =CH₂.',w:'El H se une al C1 y el OH al C2: butan-2-ol (mayoritario).'},
+{id:'a18',k:6,rg:'Markovnikov',t:'Adición',r:[['CH₂=C(CH₃)–CH₃','metilpropeno'],['H₂O','agua']],c:'H₂SO₄',p:[['(CH₃)₃C–OH','2-metilpropan-2-ol']],
+ a:[['p0',['CH₂OH–CH(CH₃)–CH₃','(CH₃)₂CH–CHO','CH₃–CO–CH₃']]],
+ h:'Markovnikov: el OH va al carbono sin H.',w:'El H se une al C1 (=CH₂) y el OH al C2: 2-metilpropan-2-ol, un alcohol terciario.'},
+{id:'a19',k:7,rg:'Ninguna',t:'Adición',r:[['CH₂=CH₂','eteno'],['HCl','cloruro de hidrógeno']],c:'',p:[['CH₃–CH₂Cl','cloroetano']],
+ a:[['p0',['CH₂Cl–CH₂Cl','CH₂=CHCl','CH₃–CH₂OH']],['r1',['Cl₂','NaCl','H₂']]],
+ h:'El H a un carbono y el Cl al otro.',w:'Adición de HCl al eteno: cloroetano. Alqueno simétrico: un único producto.'},
+{id:'a20',k:7,rg:'Markovnikov',t:'Adición',r:[['CH₂=CH–CH₃','propeno'],['HBr','bromuro de hidrógeno']],c:'',p:[['CH₃–CHBr–CH₃','2-bromopropano']],
+ a:[['p0',['CH₂Br–CH₂–CH₃','CH₂Br–CHBr–CH₃','CH₂=CBr–CH₃']]],
+ h:'Markovnikov: ¿qué carbono del doble enlace tiene más H?',w:'El H va al C1 (=CH₂) y el Br al C2: 2-bromopropano (mayoritario).'},
+{id:'a21',k:7,rg:'Markovnikov',t:'Adición',r:[['CH₂=CH–CH₂–CH₂–CH₃','pent-1-eno'],['HCl','cloruro de hidrógeno']],c:'',p:[['CH₃–CHCl–CH₂–CH₂–CH₃','2-cloropentano']],
+ a:[['p0',['CH₂Cl–CH₂–CH₂–CH₂–CH₃','CH₃–CH₂–CHCl–CH₂–CH₃','CH₂Cl–CHCl–CH₂–CH₂–CH₃']]],
+ h:'Markovnikov: el Cl va al C2.',w:'El H se une al C1 y el Cl al C2: 2-cloropentano (mayoritario).'},
+{id:'e5',k:8,rg:'Ninguna',t:'Eliminación',r:[['CH₃–CH₂OH','etanol']],c:'H₂SO₄, calor',p:[['CH₂=CH₂','eteno'],['H₂O','agua']],
+ a:[['p0',['CH₃–CHO','CH₃–CH₃','CH≡CH']],['p1',['H₂','O₂','H₂O₂']]],
+ h:'Sale una molécula de agua del alcohol.',w:'Deshidratación del etanol: eteno + agua. Solo hay un alqueno posible.'},
+{id:'e6',k:8,rg:'Ninguna',t:'Eliminación',r:[['(CH₃)₃C–OH','2-metilpropan-2-ol']],c:'H₂SO₄, calor',p:[['CH₂=C(CH₃)–CH₃','metilpropeno'],['H₂O','agua']],
+ a:[['p0',['(CH₃)₂CH–CHO','CH₃–CH=CH–CH₃','(CH₃)₂C=O']]],
+ h:'Los tres carbonos vecinos son iguales (CH₃).',w:'Sale el OH del C2 y un H de cualquiera de los CH₃: metilpropeno. Al ser equivalentes, solo hay un producto.'},
+{id:'e7',k:8,rg:'Ninguna',t:'Eliminación',r:[['CH₃–CH₂–CHOH–CH₂–CH₃','pentan-3-ol']],c:'H₂SO₄, calor',p:[['CH₃–CH=CH–CH₂–CH₃','pent-2-eno'],['H₂O','agua']],
+ a:[['p0',['CH₂=CH–CH₂–CH₂–CH₃','CH₃–CH₂–CO–CH₂–CH₃','CH₃–CH₂–CH₂–CH₂–CH₃']]],
+ h:'El OH está en el centro: los dos vecinos son iguales.',w:'Sale el OH del C3 y un H del C2 (o del C4, que es equivalente): pent-2-eno.'},
+{id:'e8',k:8,rg:'Saytzev',t:'Eliminación',r:[['CH₃–CHOH–CH₂–CH₃','butan-2-ol']],c:'H₂SO₄, calor',p:[['CH₃–CH=CH–CH₃','but-2-eno'],['H₂O','agua']],
+ a:[['p0',['CH₂=CH–CH₂–CH₃','CH₃–CO–CH₂–CH₃','CH₃–CH₂–O–CH₂–CH₃']],['c',['K₂Cr₂O₇, H⁺','Pt','medio acuoso']]],
+ h:'Saytzev: compara el C1 (CH₃) con el C3 (CH₂).',w:'El H sale del C3, que tiene menos H: but-2-eno (mayoritario).'},
+{id:'e9',k:9,rg:'Ninguna',t:'Eliminación',r:[['CH₃–CH₂Br','bromoetano'],['KOH','hidróxido de potasio']],c:'etanol, calor',p:[['CH₂=CH₂','eteno'],['HBr','(con el KOH: KBr + H₂O)']],
+ a:[['p0',['CH₃–CH₂OH','CH≡CH','CH₃–CH₃']],['c',['medio acuoso','Pt','luz (hν)']]],
+ h:'KOH en alcohol y calor: eliminación.',w:'Sale el Br y un H del carbono vecino: eteno.'},
+{id:'e10',k:9,rg:'Ninguna',t:'Eliminación',r:[['CH₃–CHCl–CH₃','2-cloropropano'],['KOH','hidróxido de potasio']],c:'etanol, calor',p:[['CH₂=CH–CH₃','propeno'],['HCl','(con el KOH: KCl + H₂O)']],
+ a:[['p0',['CH₃–CHOH–CH₃','CH₃–CH₂–CH₃','CH≡C–CH₃']]],
+ h:'Los dos vecinos del C2 son CH₃: un solo alqueno.',w:'Deshidrohalogenación: propeno. Los dos carbonos vecinos son equivalentes.'},
+{id:'e11',k:9,rg:'Ninguna',t:'Eliminación',r:[['(CH₃)₃CBr','2-bromo-2-metilpropano'],['KOH','hidróxido de potasio']],c:'etanol, calor',p:[['CH₂=C(CH₃)–CH₃','metilpropeno'],['HBr','(con el KOH: KBr + H₂O)']],
+ a:[['p0',['(CH₃)₃C–OH','CH₃–CH=CH–CH₃','(CH₃)₃CH']]],
+ h:'Medio alcohólico y calor: no entra el OH.',w:'Sale el Br del C2 y un H de un CH₃ vecino: metilpropeno.'},
+{id:'c7',k:10,rg:'Ninguna',t:'Condensación',r:[['CH₃–COOH','ácido etanoico'],['CH₃–CH₂OH','etanol']],c:'H⁺',p:[['CH₃–COO–CH₂–CH₃','etanoato de etilo'],['H₂O','agua']],
+ a:[['p0',['CH₃–CH₂–COO–CH₃','CH₃–CH₂–O–CH₂–CH₃','CH₃–CO–CH₂–CH₃']],['p1',['H₂','CO₂','O₂']]],
+ h:'La parte –COO– viene del ácido; la de detrás, del alcohol.',w:'Esterificación: etanoato de etilo (acetato de etilo) y agua.'},
+{id:'c8',k:10,rg:'Ninguna',t:'Condensación',r:[['CH₃–CH₂–COOH','ácido propanoico'],['CH₃OH','metanol']],c:'H⁺',p:[['CH₃–CH₂–COO–CH₃','propanoato de metilo'],['H₂O','agua']],
+ a:[['p0',['CH₃–COO–CH₂–CH₃','CH₃–CH₂–O–CH₃','CH₃–CH₂–CO–CH₃']],['r1',['CH₃–CH₂OH','H–CHO','CH₄']]],
+ h:'«propanoato» del ácido, «de metilo» del alcohol.',w:'Ácido propanoico + metanol → propanoato de metilo + agua.'},
+{id:'c9',k:10,rg:'Ninguna',t:'Condensación',r:[['H–COOH','ácido metanoico'],['CH₃OH','metanol']],c:'H⁺',p:[['H–COO–CH₃','metanoato de metilo'],['H₂O','agua']],
+ a:[['p0',['CH₃–O–CH₃','CH₃–COOH','H–COO–CH₂–CH₃']]],
+ h:'El ácido tiene un carbono y el alcohol, otro.',w:'Ácido metanoico + metanol → metanoato de metilo + agua.'},
+{id:'c10',k:11,rg:'Ninguna',t:'Condensación',r:[['H–COOH','ácido metanoico'],['NH₃','amoníaco']],c:'calor',p:[['H–CONH₂','metanamida'],['H₂O','agua']],
+ a:[['p0',['CH₃–NH₂','H–COONH₄','H–CN']]],
+ h:'El –OH del ácido se cambia por –NH₂.',w:'Ácido + amoníaco con calor → amida + agua: metanamida (formamida).'},
+{id:'c11',k:11,rg:'Ninguna',t:'Condensación',r:[['CH₃–CH₂–COOH','ácido propanoico'],['NH₃','amoníaco']],c:'calor',p:[['CH₃–CH₂–CONH₂','propanamida'],['H₂O','agua']],
+ a:[['p0',['CH₃–CH₂–CH₂–NH₂','CH₃–CH₂–CN','CH₃–CONH₂']],['r0',['CH₃–CH₂–CHO','CH₃–CH₂–CH₂OH','CH₃–COOH']]],
+ h:'La amida conserva los tres carbonos del ácido.',w:'Ácido propanoico + NH₃ → propanamida + agua.'},
+{id:'q5',k:12,rg:'Ninguna',t:'Combustión',r:[['CH₃–CH₃','etano'],['7/2 O₂','oxígeno']],c:'',p:[['2 CO₂','dióxido de carbono'],['3 H₂O','agua']],
+ a:[['r1',['3 O₂','7 O₂','5/2 O₂']],['p1',['2 H₂O','6 H₂O','3 H₂']],['p0',['CO₂','2 CO','4 CO₂']]],
+ h:'C₂H₆: 2 CO₂ y 3 H₂O. Cuenta los O.',w:'C₂H₆ + 7/2 O₂ → 2 CO₂ + 3 H₂O (o 2 C₂H₆ + 7 O₂ → 4 CO₂ + 6 H₂O). Productos: 4 + 3 = 7 O.'},
+{id:'q6',k:12,rg:'Ninguna',t:'Combustión',r:[['CH₃–CO–CH₃','propanona'],['4 O₂','oxígeno']],c:'',p:[['3 CO₂','dióxido de carbono'],['3 H₂O','agua']],
+ a:[['r1',['9/2 O₂','5 O₂','3 O₂']],['p0',['3 CO','CO₂','6 CO₂']]],
+ h:'C₃H₆O: la cetona aporta un O.',w:'C₃H₆O + 4 O₂ → 3 CO₂ + 3 H₂O. Productos: 6 + 3 = 9 O; la propanona aporta 1, faltan 8 O = 4 O₂.'},
+{id:'o6',k:13,rg:'Ninguna',t:'Oxidación',r:[['CH₃–CH₂OH','etanol']],c:'K₂Cr₂O₇, H⁺',p:[['CH₃–CHO','etanal']],
+ a:[['p0',['CH₃–CO–CH₃','CH₂=CH₂','CH₃–O–CH₃']]],
+ h:'Alcohol primario: primer paso.',w:'El etanol se oxida a etanal (acetaldehído); si continúa, a ácido etanoico.'},
+{id:'o7',k:13,rg:'Ninguna',t:'Oxidación',r:[['CH₃OH','metanol']],c:'K₂Cr₂O₇, H⁺',p:[['H–CHO','metanal']],
+ a:[['p0',['CH₄','CO₂','CH₃–O–CH₃']]],
+ h:'El –CH₂OH (aquí –CH₃OH) pasa a –CHO.',w:'El metanol se oxida a metanal (formaldehído).'},
+{id:'o8',k:14,rg:'Ninguna',t:'Oxidación',r:[['CH₃–CHOH–CH₂–CH₃','butan-2-ol']],c:'K₂Cr₂O₇, H⁺',p:[['CH₃–CO–CH₂–CH₃','butanona']],
+ a:[['p0',['CH₃–CH₂–CH₂–CHO','CH₃–CH=CH–CH₃','CH₃–CH₂–CH₂–COOH']],['c',['H₂, Pt','H₂SO₄, calor','luz (hν)']]],
+ h:'Alcohol secundario → cetona.',w:'El butan-2-ol se oxida a butanona: el C=O queda en el C2.'},
+{id:'o9',k:14,rg:'Ninguna',t:'Oxidación',r:[['C₆H₁₁OH','ciclohexanol']],c:'KMnO₄, H⁺',p:[['C₆H₁₀O','ciclohexanona']],
+ a:[['p0',['C₆H₁₀','C₆H₁₂','C₆H₁₁–COOH']]],
+ h:'El C del OH está unido a dos C del anillo: alcohol secundario.',w:'El ciclohexanol (alcohol secundario) se oxida a ciclohexanona.'},
+{id:'o10',k:14,rg:'Ninguna',t:'Oxidación',r:[['CH₃–CH₂–CHOH–CH₂–CH₃','pentan-3-ol']],c:'K₂Cr₂O₇, H⁺',p:[['CH₃–CH₂–CO–CH₂–CH₃','pentan-3-ona']],
+ a:[['p0',['CH₃–CH₂–CH₂–CH₂–CHO','CH₃–CO–CH₂–CH₂–CH₃','CH₃–CH=CH–CH₂–CH₃']]],
+ h:'El C=O queda en el mismo carbono que tenía el OH.',w:'Alcohol secundario → cetona: pentan-3-ona.'},
+{id:'d4',k:15,rg:'Ninguna',t:'Reducción',r:[['CH₃–CHO','etanal'],['H₂','hidrógeno']],c:'Ni',p:[['CH₃–CH₂OH','etanol']],
+ a:[['p0',['CH₃–COOH','CH₃–CH₃','CH₃–O–CH₃']],['c',['K₂Cr₂O₇, H⁺','H₂SO₄, calor','luz (hν)']]],
+ h:'Aldehído + H₂ → alcohol primario.',w:'Reducción del etanal: etanol.'},
+{id:'d5',k:15,rg:'Ninguna',t:'Reducción',r:[['H–CHO','metanal'],['H₂','hidrógeno']],c:'Pt',p:[['CH₃OH','metanol']],
+ a:[['p0',['CH₄','H–COOH','CO₂']]],
+ h:'El C=O gana dos H.',w:'Metanal + H₂ → metanol.'},
+{id:'d6',k:15,rg:'Ninguna',t:'Reducción',r:[['CH₃–CH₂–CH₂–CHO','butanal'],['H₂','hidrógeno']],c:'Pt',p:[['CH₃–CH₂–CH₂–CH₂OH','butan-1-ol']],
+ a:[['p0',['CH₃–CHOH–CH₂–CH₃','CH₃–CH₂–CH₂–COOH','CH₃–CH₂–CH=CH₂']]],
+ h:'El OH queda en el C1, donde estaba el –CHO.',w:'Butanal + H₂ → butan-1-ol (alcohol primario).'},
+{id:'d7',k:15,rg:'Ninguna',t:'Reducción',r:[['CH₃–CH(CH₃)–CHO','2-metilpropanal'],['H₂','hidrógeno']],c:'Ni',p:[['CH₃–CH(CH₃)–CH₂OH','2-metilpropan-1-ol']],
+ a:[['p0',['(CH₃)₃C–OH','CH₃–CH(CH₃)–COOH','CH₃–CO–CH₂–CH₃']]],
+ h:'La ramificación no cambia; solo el –CHO.',w:'El –CHO pasa a –CH₂OH: 2-metilpropan-1-ol.'},
+{id:'d8',k:16,rg:'Ninguna',t:'Reducción',r:[['CH₃–CO–CH₃','propanona'],['H₂','hidrógeno']],c:'Ni',p:[['CH₃–CHOH–CH₃','propan-2-ol']],
+ a:[['p0',['CH₃–CH₂–CH₂OH','CH₃–CH₂–CHO','CH₃–CH₂–CH₃']]],
+ h:'Cetona → alcohol secundario.',w:'Propanona + H₂ → propan-2-ol.'},
+{id:'d9',k:16,rg:'Ninguna',t:'Reducción',r:[['CH₃–CH₂–CO–CH₂–CH₃','pentan-3-ona'],['H₂','hidrógeno']],c:'Pt',p:[['CH₃–CH₂–CHOH–CH₂–CH₃','pentan-3-ol']],
+ a:[['p0',['CH₃–CHOH–CH₂–CH₂–CH₃','CH₃–CH₂–CH₂–CH₂–CH₂OH','CH₃–CH₂–CH=CH–CH₃']],['r0',['CH₃–CH₂–CH₂–CH₂–CHO','CH₃–CO–CH₂–CH₂–CH₃','CH₃–CH₂–CH=CH–CH₃']]],
+ h:'El OH aparece donde estaba el C=O.',w:'Pentan-3-ona + H₂ → pentan-3-ol.'},
+{id:'d10',k:16,rg:'Ninguna',t:'Reducción',r:[['C₆H₁₀O','ciclohexanona'],['H₂','hidrógeno']],c:'Ni',p:[['C₆H₁₁OH','ciclohexanol']],
+ a:[['p0',['C₆H₁₂','C₆H₁₀','C₆H₁₁–COOH']]],
+ h:'Cetona cíclica → alcohol secundario cíclico.',w:'Ciclohexanona + H₂ → ciclohexanol.'}
+];
+
+const AMP = [
+{id:'x1',k:4,rg:'Ninguna',t:'Adición',r:[['CH₃–C≡CH','propino'],['H₂','hidrógeno']],c:'Pd (catalizador parcial)',p:[['CH₂=CH–CH₃','propeno']],
+ a:[['p0',['CH₃–CH₂–CH₃','CH₃–CH₂–CH=CH₂','CH₃–C≡C–CH₃']]],
+ h:'Con Pd la hidrogenación se detiene en el doble enlace.',
+ w:'Hidrogenación parcial: con Pd el alquino se queda en alqueno. Con Pt o Ni en exceso de H₂ llegaría al alcano.'},
+{id:'x2',k:5,rg:'Ninguna',t:'Adición',r:[['CH₃–C≡CH','propino'],['2 Cl₂','cloro (exceso)']],c:'',p:[['CH₃–CCl₂–CHCl₂','1,1,2,2-tetracloropropano']],
+ a:[['p0',['CH₃–CCl=CHCl','CH₂Cl–CCl₂–CH₂Cl','CH₃–CH₂–CCl₃']]],
+ h:'Exceso de halógeno: se rompen los dos enlaces π.',
+ w:'Con exceso de Cl₂ se producen dos adiciones: C1 y C2 terminan con dos Cl cada uno.'},
+{id:'x3',k:7,rg:'Markovnikov',t:'Adición',r:[['CH₃–C≡CH','propino'],['HCl','cloruro de hidrógeno']],c:'',p:[['CH₃–CCl=CH₂','2-cloropropeno']],
+ a:[['p0',['CH₃–CH=CHCl','CH₃–CHCl–CH₃','CH₃–C≡CCl']]],
+ h:'Markovnikov también en alquinos.',
+ w:'El H va al C1 (≡CH, más hidrogenado) y el Cl al C2: 2-cloropropeno (mayoritario).'},
+{id:'x4',k:7,rg:'Markovnikov',t:'Adición',r:[['CH₃–C≡CH','propino'],['2 HCl','cloruro de hidrógeno (exceso)']],c:'',p:[['CH₃–CCl₂–CH₃','2,2-dicloropropano']],
+ a:[['p0',['CH₂Cl–CH₂–CH₂Cl','CH₃–CHCl–CH₂Cl','CH₃–CH₂–CHCl₂']]],
+ h:'La segunda molécula de HCl también sigue Markovnikov.',
+ w:'Tras la primera adición (2-cloropropeno), el segundo HCl coloca otro Cl en el C2: 2,2-dicloropropano.'},
+{id:'x5',k:'enol',rg:'Ninguna',t:'Adición',r:[['CH≡CH','etino'],['H₂O','agua']],c:'H₂SO₄, HgSO₄',p:[['CH₃–CHO','etanal']],
+ a:[['p0',['CH₂=CH–OH','CH₃–CH₂OH','CH₃–COOH']]],
+ h:'Se forma un enol, que es inestable y se reorganiza.',
+ w:'La hidratación del etino da un enol (CH₂=CHOH) que se transforma en el aldehído etanal (tautomería ceto-enólica).'},
+{id:'x6',k:'enol',rg:'Markovnikov',t:'Adición',r:[['CH₃–C≡CH','propino'],['H₂O','agua']],c:'H₂SO₄, HgSO₄',p:[['CH₃–CO–CH₃','propanona']],
+ a:[['p0',['CH₃–CH₂–CHO','CH₃–CHOH–CH₃','CH₃–C(OH)=CH₂']]],
+ h:'Markovnikov + enol inestable.',
+ w:'El OH se une al C2 (Markovnikov) formando un enol que se reorganiza a cetona: propanona.'},
+{id:'x7',k:'X',rg:'Ninguna',t:'Sustitución',r:[['CH₃–CHBr–CH₃','2-bromopropano'],['NaI','yoduro de sodio']],c:'',p:[['CH₃–CHI–CH₃','2-yodopropano'],['NaBr','bromuro de sodio']],
+ a:[['p0',['CH₂I–CH₂–CH₃','CH₃–CBrI–CH₃','CH₂=CH–CH₃']],['p1',['HBr','Br₂','NaI']]],
+ h:'Un halógeno sustituye a otro en el mismo carbono.',
+ w:'Sustitución de un halógeno por otro: el I⁻ desplaza al Br en el C2 y se forma NaBr.'},
+{id:'x8',k:3,rg:'Ninguna',t:'Sustitución',r:[['CH₃–CHOH–CH₃','propan-2-ol'],['HBr','bromuro de hidrógeno']],c:'ZnCl₂, calor',p:[['CH₃–CHBr–CH₃','2-bromopropano'],['H₂O','agua']],
+ a:[['p0',['CH₂Br–CH₂–CH₃','CH₂=CH–CH₃','CH₃–CO–CH₃']]],
+ h:'El OH se cambia por Br en el mismo carbono.',
+ w:'Alcohol + HX con ZnCl₂ como catalizador: el Br sustituye al OH y sale agua.'},
+{id:'x9',k:1,rg:'Ninguna',t:'Sustitución',r:[['CH₃–CH₂–CH₃','propano'],['Cl₂','cloro']],c:'luz (hν)',p:[['CH₃–CHCl–CH₃ + CH₂Cl–CH₂–CH₃','mezcla de 2-cloropropano y 1-cloropropano'],['HCl','cloruro de hidrógeno']],
+ a:[['p0',['solo CH₂Cl–CH₂–CH₃','CH₂Cl–CHCl–CH₃','CH₂=CH–CH₃']]],
+ h:'La halogenación radicalaria no es selectiva.',
+ w:'Los radicales Cl• arrancan H de cualquier carbono: se obtiene una mezcla de derivados monoclorados (1- y 2-cloropropano).'},
+{id:'x10',k:'Ar',rg:'Ninguna',t:'Sustitución',r:[['C₆H₆','benceno'],['Cl₂','cloro']],c:'FeCl₃ (o AlCl₃)',p:[['C₆H₅Cl','clorobenceno'],['HCl','cloruro de hidrógeno']],
+ a:[['p0',['C₆H₆Cl₂','C₆H₆Cl₆','C₆H₁₁Cl']],['c',['luz (hν)','Pt','NaOH, medio acuoso']]],
+ h:'El anillo aromático es muy estable: no adiciona, sustituye.',
+ w:'Halogenación del benceno (sustitución electrófila aromática): un H del anillo se cambia por Cl y se conserva la aromaticidad.'},
+{id:'x11',k:'Ar',rg:'Ninguna',t:'Sustitución',r:[['C₆H₆','benceno'],['HNO₃','ácido nítrico']],c:'H₂SO₄',p:[['C₆H₅–NO₂','nitrobenceno'],['H₂O','agua']],
+ a:[['p0',['C₆H₅–NH₂','C₆H₆–NO₃','C₆H₅–ONO']],['c',['FeCl₃','luz (hν)','Ni']]],
+ h:'Mezcla sulfonítrica: el electrófilo es NO₂⁺.',
+ w:'Nitración: el H₂SO₄ forma el ion NO₂⁺, que sustituye a un H del anillo. Se obtiene nitrobenceno y agua.'},
+{id:'x12',k:'Ar',rg:'Ninguna',t:'Sustitución',r:[['C₆H₆','benceno'],['CH₃Cl','clorometano']],c:'AlCl₃',p:[['C₆H₅–CH₃','metilbenceno (tolueno)'],['HCl','cloruro de hidrógeno']],
+ a:[['p0',['C₆H₅Cl','C₆H₅–CH₂Cl','C₆H₆–CH₃']]],
+ h:'Alquilación de Friedel-Crafts: entra el grupo alquilo.',
+ w:'El AlCl₃ genera el carbocatión CH₃⁺, que sustituye un H del benceno: se forma tolueno y HCl.'},
+{id:'x13',k:8,rg:'Saytzev',t:'Eliminación',r:[['(CH₃)₂CH–CHOH–CH₃','3-metilbutan-2-ol']],c:'H₂SO₄ conc., calor',p:[['(CH₃)₂C=CH–CH₃','2-metilbut-2-eno (mayoritario)'],['H₂O','agua']],
+ a:[['p0',['(CH₃)₂CH–CH=CH₂','(CH₃)₂CH–CO–CH₃','(CH₃)₂CH–CH₂–CH₃']]],
+ h:'Saytzev: compara el C3 (CH, con un H) y el C1 (CH₃).',
+ w:'Se pueden formar dos alquenos. El mayoritario es 2-metilbut-2-eno: el H sale del C3, que tiene menos H, y queda el alqueno más sustituido. El 3-metilbut-1-eno es minoritario.'},
+{id:'x14',k:9,rg:'Saytzev',t:'Eliminación',r:[['(CH₃)₂CCl–CH₂–CH₃','2-cloro-2-metilbutano'],['KOH','hidróxido de potasio']],c:'etanol, calor',p:[['(CH₃)₂C=CH–CH₃','2-metilbut-2-eno (mayoritario)'],['KCl + H₂O','cloruro de potasio y agua']],
+ a:[['p0',['CH₂=C(CH₃)–CH₂–CH₃','(CH₃)₂COH–CH₂–CH₃','(CH₃)₂CH–CH=CH₂']]],
+ h:'Saytzev: compara el CH₃ y el CH₂ vecinos del C2.',
+ w:'El H sale del C3 (CH₂): se forma 2-metilbut-2-eno (≈70 %), el alqueno más sustituido; el 2-metilbut-1-eno es minoritario (≈30 %).'},
+{id:'x15',k:'eter',rg:'Ninguna',t:'Condensación',r:[['2 CH₃–CH₂OH','etanol']],c:'H₂SO₄, calor moderado',p:[['CH₃–CH₂–O–CH₂–CH₃','etoxietano (dietil éter)'],['H₂O','agua']],
+ a:[['p0',['CH₃–COO–CH₂–CH₃','CH₂=CH₂','CH₃–CH₂–CO–CH₂–CH₃']]],
+ h:'Dos alcoholes se unen por un O y sale agua.',
+ w:'Deshidratación intermolecular: dos moléculas de etanol forman un éter. A temperatura más alta predominaría la eliminación (eteno).'},
+{id:'x16',k:11,rg:'Ninguna',t:'Condensación',r:[['CH₃–COOH','ácido etanoico'],['CH₃–NH₂','metanamina']],c:'calor',p:[['CH₃–CO–NH–CH₃','N-metiletanamida'],['H₂O','agua']],
+ a:[['p0',['CH₃–CONH₂','CH₃–COO–CH₃','CH₃–NH–CH₃']]],
+ h:'El grupo metilo de la amina queda unido al N.',
+ w:'Amidación: ácido + amina primaria → amida N-sustituida (N-metiletanamida) + agua.'},
+{id:'x17',k:13,rg:'Ninguna',t:'Oxidación',r:[['CH₃–CH₂OH','etanol']],c:'KMnO₄, H⁺ (exceso)',p:[['CH₃–COOH','ácido etanoico']],
+ a:[['p0',['CH₃–CO–CH₃','CH₂=CH₂','CH₃–O–CH₃']]],
+ h:'Oxidante fuerte en exceso: el alcohol primario llega hasta el final.',
+ w:'Con KMnO₄ en exceso el etanol pasa por etanal y termina como ácido etanoico (acético).'},
+{id:'x18',k:'nox',rg:'Ninguna',t:'Oxidación',r:[['(CH₃)₃C–OH','2-metilpropan-2-ol']],c:'K₂Cr₂O₇, H⁺',p:[['no reacciona','no se oxida']],
+ a:[['p0',['(CH₃)₂CH–CHO','(CH₃)₂C=O','(CH₃)₂CH–COOH']]],
+ h:'¿Tiene H el carbono que lleva el OH?',
+ w:'En un alcohol terciario el C del OH no tiene ningún H, por lo que no se oxida en estas condiciones.'},
+{id:'x19',k:'redac',rg:'Ninguna',t:'Reducción',r:[['CH₃–COOH','ácido etanoico']],c:'LiAlH₄',p:[['CH₃–CH₂OH','etanol']],
+ a:[['p0',['CH₃–CO–CH₃','CH₃–CH₃','CH₃–COO–CH₃']]],
+ h:'Reductor muy fuerte: el ácido llega hasta alcohol primario.',
+ w:'El LiAlH₄ reduce el ácido carboxílico (pasando por el aldehído) hasta el alcohol primario: etanol.'},
+{id:'x20',k:16,rg:'Ninguna',t:'Reducción',r:[['CH₃–CO–CH₃','propanona']],c:'NaBH₄',p:[['CH₃–CHOH–CH₃','propan-2-ol']],
+ a:[['p0',['CH₃–CH₂–CH₂OH','CH₃–CH₂–CHO','CH₃–CH₂–CH₃']],['c',['K₂Cr₂O₇, H⁺','H₂SO₄, calor','HgSO₄']]],
+ h:'NaBH₄ actúa como H₂ con catalizador.',
+ w:'La cetona se reduce a alcohol secundario: propan-2-ol.'},
+{id:'x21',k:'hidr',rg:'Ninguna',t:'Hidrólisis',r:[['CH₃–COO–CH₃','etanoato de metilo'],['H₂O','agua']],c:'H₂SO₄ (reversible)',p:[['CH₃–COOH','ácido etanoico'],['CH₃OH','metanol']],
+ a:[['p0',['CH₃–CHO','CH₃–CH₂OH','CH₃–O–CH₃']],['p1',['CH₃–CH₂OH','CH₄','CH₃–O–CH₃']]],
+ h:'Es la reacción inversa de la esterificación.',
+ w:'Hidrólisis ácida de un éster: el agua rompe el enlace éster y se recuperan el ácido y el alcohol. Es un equilibrio.'},
+{id:'x22',k:'hidr',rg:'Ninguna',t:'Hidrólisis',r:[['CH₃–COO–CH₂–CH₃','etanoato de etilo'],['NaOH','hidróxido de sodio']],c:'H₂O, calor',p:[['CH₃–COONa','etanoato de sodio'],['CH₃–CH₂OH','etanol']],
+ a:[['p0',['CH₃–COOH','CH₃–CH₂–COONa','CH₃–CHO']]],
+ h:'En medio básico el ácido sale como sal.',
+ w:'Hidrólisis básica (saponificación): se obtiene la sal del ácido (etanoato de sodio) y el alcohol. Con una grasa se forman jabón y glicerina.'},
+{id:'x23',k:'hidr',rg:'Ninguna',t:'Hidrólisis',r:[['grasa (triéster de glicerina)','triglicérido'],['3 NaOH','hidróxido de sodio']],c:'H₂O, calor',p:[['3 R–COONa','jabón'],['glicerina','propano-1,2,3-triol']],
+ a:[['p0',['3 R–COOH','3 R–CH₂OH','3 R–COO–CH₃']],['p1',['etanol','metanol','propanona']]],
+ h:'Saponificación: jabón + glicerina.',
+ w:'Cada enlace éster de la grasa se hidroliza con NaOH: se forman tres moléculas de sal de ácido graso (jabón) y glicerina.'},
+{id:'x24',k:'ab',rg:'Ninguna',t:'Ácido-base',r:[['CH₃–CH₂–COOH','ácido propanoico'],['NaOH','hidróxido de sodio']],c:'',p:[['CH₃–CH₂–COONa','propanoato de sodio'],['H₂O','agua']],
+ a:[['p0',['CH₃–CH₂–CH₂OH','CH₃–CH₂–CONa','CH₃–CH₂–COO–CH₃']],['p1',['H₂','O₂','NaH']]],
+ h:'Ácido + base → sal + agua.',
+ w:'Neutralización: el H ácido del –COOH pasa al OH⁻ y se forma agua y la sal (propanoato de sodio).'},
+{id:'x25',k:12,rg:'Ninguna',t:'Combustión',r:[['CH₂=CH₂','eteno'],['3 O₂','oxígeno']],c:'',p:[['2 CO₂','dióxido de carbono'],['2 H₂O','agua']],
+ a:[['r1',['2 O₂','7/2 O₂','5/2 O₂']],['p1',['H₂O','4 H₂O','3 H₂O']],['p0',['CO₂','2 CO','4 CO₂']]],
+ h:'C₂H₄: 2 CO₂ y 2 H₂O.',
+ w:'C₂H₄ + 3 O₂ → 2 CO₂ + 2 H₂O. Productos: 4 + 2 = 6 O = 3 O₂.'}
+];
+
+
+const TYPES = {
+  pau:['Sustitución','Adición','Eliminación','Condensación','Combustión','Oxidación','Reducción'],
+  amp:['Sustitución','Adición','Eliminación','Condensación','Combustión','Oxidación','Reducción','Hidrólisis','Ácido-base']
+};
+const TYPE_TIP = {
+  'Sustitución':'un átomo o grupo se cambia por otro.',
+  'Adición':'desaparece un doble o triple enlace y se suman átomos.',
+  'Eliminación':'aparece un doble enlace y sale una molécula pequeña.',
+  'Condensación':'se unen dos moléculas y sale agua.',
+  'Combustión':'reacción con O₂ que da CO₂ y H₂O.',
+  'Oxidación':'gana O o pierde H (alcohol → aldehído/cetona → ácido).',
+  'Reducción':'gana H o pierde O (aldehído/cetona → alcohol).',
+  'Hidrólisis':'el agua rompe la molécula.',
+  'Ácido-base':'ácido + base → sal + agua.'
+};
+const RULES=['Markovnikov','Saytzev','Ninguna'];
+const RULE_TIP={
+  'Markovnikov':'se aplica en adiciones de HX o H₂O a un doble o triple enlace asimétrico.',
+  'Saytzev':'se aplica en eliminaciones en las que se pueden formar dos alquenos distintos.',
+  'Ninguna':'no hay que elegir entre dos productos posibles.'
+};
+const SLOTNAME = {r0:'el reactivo',r1:'el segundo reactivo',c:'la condición o el catalizador',p0:'el producto principal',p1:'el otro producto'};
+const HAL='Cl|Br|I|F', PI='[^–\\s]*[=≡][^–\\s]*';
+/* Enlaces que se rompen y se forman (hr: grupo resaltado en reactivos, hp: en productos) */
+const KINFO={
+ 1:{n:'Halogenación de alcanos',g:'R–CH₃ + X₂ <small>(luz)</small> → R–CH₂X + HX',rompe:'C–H y X–X',forma:'C–X y H–X',hr:null,hp:HAL},
+ 2:{n:'Derivado halogenado + NaOH (aq)',g:'R–CH₂X + NaOH <small>(aq)</small> → R–CH₂OH + NaX',rompe:'C–X',forma:'C–OH',hr:HAL,hp:'OH'},
+ 3:{n:'Alcohol + HX',g:'R–CH₂OH + HX <small>(H⁺)</small> → R–CH₂X + H₂O',rompe:'C–OH',forma:'C–X (y sale H₂O)',hr:'OH',hp:HAL},
+ 4:{n:'Hidrogenación',g:'R–C≡C–R′ + H₂ <small>(Pt)</small> → R–CH=CH–R′ ; + H₂ → R–CH₂–CH₂–R′',rompe:'un enlace π (C=C o C≡C) y H–H',forma:'dos enlaces C–H',hr:PI,hp:PI},
+ 5:{n:'Halogenación de alquenos y alquinos',g:'R–C≡C–R′ + X₂ → R–CX=CX–R′ ; + X₂ → R–CX₂–CX₂–R′',rompe:'un enlace π y X–X',forma:'dos enlaces C–X',hr:PI,hp:HAL},
+ 6:{n:'Hidratación (Markovnikov)',g:'R–CH=CH₂ + H₂O <small>(H₂SO₄)</small> → R–CHOH–CH₃',rompe:'el enlace π C=C y H–OH',forma:'C–H y C–OH',hr:PI,hp:'OH'},
+ 7:{n:'Adición de HX (Markovnikov)',g:'R–CH=CH₂ + HX → R–CHX–CH₃',rompe:'el enlace π y H–X',forma:'C–H y C–X',hr:PI,hp:HAL},
+ 8:{n:'Deshidratación de alcoholes (Saytzev)',g:'R–CH₂–CHOH–CH₃ <small>(H₂SO₄, calor)</small> → R–CH=CH–CH₃ + H₂O',rompe:'C–OH y un C–H del carbono vecino',forma:'el enlace π C=C (y sale H₂O)',hr:'OH',hp:PI},
+ 9:{n:'Deshidrohalogenación (Saytzev)',g:'R–CH₂–CH₂X <small>(KOH, etanol, calor)</small> → R–CH=CH₂ + HX',rompe:'C–X y un C–H del carbono vecino',forma:'el enlace π C=C (y sale HX)',hr:HAL,hp:PI},
+ 10:{n:'Esterificación',g:'R–COOH + R′–CH₂OH <small>(H⁺)</small> → R–COO–CH₂–R′ + H₂O',rompe:'C–OH del ácido y O–H del alcohol',forma:'el enlace éster C–O–C (y sale H₂O)',hr:'COOH|OH',hp:'COO'},
+ 11:{n:'Formación de amidas',g:'R–COOH + NH₃ → R–CONH₂ + H₂O ; R–COOH + R′–NH₂ → R–CO–NH–R′ + H₂O',rompe:'C–OH del ácido y N–H',forma:'el enlace amida C–N (y sale H₂O)',hr:'COOH|NH',hp:'CONH₂|CO–NH|CO–N'},
+ 12:{n:'Combustión',g:'CₓHᵧ(O) + O₂ → CO₂ + H₂O',rompe:'todos los C–C y C–H, y O=O',forma:'C=O del CO₂ y O–H del agua',hr:null,hp:null},
+ 13:{n:'Oxidación de alcoholes primarios',g:'R–CH₂OH → R–CHO → R–COOH <small>(K₂Cr₂O₇ o KMnO₄, H⁺)</small>',rompe:'C–H del carbono que lleva el O (y O–H)',forma:'C=O (y C–OH en el ácido)',hr:'CH₂OH|CHO|OH',hp:'CHO|COOH'},
+ 14:{n:'Oxidación de alcoholes secundarios',g:'R–CHOH–R′ → R–CO–R′ <small>(K₂Cr₂O₇ o KMnO₄, H⁺)</small>',rompe:'C–H y O–H',forma:'C=O',hr:'CHOH|OH',hp:'CO(?!O)'},
+ 15:{n:'Reducción de aldehídos',g:'R–CHO + H₂ <small>(Pt, Ni)</small> → R–CH₂OH',rompe:'el enlace π C=O y H–H',forma:'C–H y O–H',hr:'CHO',hp:'CH₂OH|OH'},
+ 16:{n:'Reducción de cetonas',g:'R–CO–R′ + H₂ <small>(Pt, Ni)</small> → R–CHOH–R′',rompe:'el enlace π C=O y H–H',forma:'C–H y O–H',hr:'CO(?!O)',hp:'CHOH|OH'},
+ enol:{rompe:'un enlace π C≡C y H–OH',forma:'un enol, que se reorganiza a C=O',hr:PI,hp:'CHO|CO'},
+ X:{rompe:'C–Br',forma:'C–I',hr:HAL,hp:HAL},
+ Ar:{rompe:'un C–H del anillo',forma:'C–Cl, C–N o C–C con el anillo',hr:null,hp:'Cl|NO₂|–CH₃'},
+ eter:{rompe:'C–OH de una molécula y O–H de la otra',forma:'C–O–C (y sale H₂O)',hr:'OH',hp:'–O–'},
+ redac:{rompe:'C=O y C–OH del ácido',forma:'C–H',hr:'COOH',hp:'OH'},
+ hidr:{rompe:'el enlace éster C–O',forma:'C–OH del ácido (o la sal) y O–H del alcohol',hr:'COO',hp:'COOH|COONa|OH'},
+ ab:{rompe:'O–H del ácido',forma:'la sal (–COO⁻ Na⁺) y el agua',hr:'COOH',hp:'COONa'},
+ nox:{rompe:'nada',forma:'nada',hr:null,hp:null}
+};
+const FX={'(CH₃)₃CCl':['CH₃–CCl(CH₃)–CH₃','CH₃–CCl(CH₃)₂','CCl(CH₃)₃'],'(CH₃)₂C=CH–CH₃':['CH₃–C(CH₃)=CH–CH₃','CH₃–CH=C(CH₃)₂','CH₃–CH=C(CH₃)–CH₃'],
+ 'no reacciona':['no','no se oxida','ninguno','nada','no hay reaccion'],'C₆H₅–CH₃':['C₆H₅CH₃','CH₃–C₆H₅'],'C₆H₅–NO₂':['C₆H₅NO₂'],
+ 'CH₂=C(CH₃)–CH₃':['CH₂=C(CH₃)₂','(CH₃)₂C=CH₂'],'(CH₃)₃C–OH':['(CH₃)₃COH','CH₃–COH(CH₃)–CH₃','CH₃–C(OH)(CH₃)–CH₃'],
+ 'CH₃–CH(CH₃)–CH₂OH':['(CH₃)₂CH–CH₂OH'],'CH₃–CH(CH₃)–CHO':['(CH₃)₂CH–CHO'],'(CH₃)₃CBr':['CH₃–CBr(CH₃)–CH₃','(CH₃)₃C–Br']};
+const NAME_ALT={'propan-2-ol':['2-propanol','isopropanol'],'propan-1-ol':['1-propanol'],'butan-2-ol':['2-butanol'],'butan-1-ol':['1-butanol'],
+ 'pentan-1-ol':['1-pentanol'],'pentan-2-ol':['2-pentanol'],'pentan-3-ol':['3-pentanol'],'hexan-2-ol':['2-hexanol'],'propanona':['acetona','propan-2-ona','dimetilcetona'],
+ 'butanona':['butan-2-ona','2-butanona','etilmetilcetona'],'pentan-2-ona':['2-pentanona'],'pentan-3-ona':['3-pentanona'],'ácido etanoico':['ácido acético'],'ácido metanoico':['ácido fórmico'],
+ 'etanal':['acetaldehído'],'metanal':['formaldehído','formol'],'etanamida':['acetamida'],'metanamida':['formamida'],'etanoato de metilo':['acetato de metilo'],'etanoato de etilo':['acetato de etilo'],
+ 'etanoato de sodio':['acetato de sodio'],'metanoato de etilo':['formiato de etilo'],'metanoato de metilo':['formiato de metilo'],'pent-2-eno':['2-penteno'],'but-2-eno':['2-buteno'],'but-1-eno':['1-buteno'],
+ 'pent-1-eno':['1-penteno'],'propeno':['prop-1-eno'],'2-cloropropeno':['2-cloroprop-1-eno'],'2-metilbut-2-eno':['2-metil-2-buteno'],'etoxietano':['dietil éter','éter dietílico'],
+ 'metilbenceno':['tolueno'],'eteno':['etileno'],'etino':['acetileno'],'glicerina':['glicerol'],'metilpropeno':['2-metilpropeno','isobuteno'],
+ '2-metilpropan-2-ol':['2-metil-2-propanol','terc-butanol'],'2-metilpropan-1-ol':['2-metil-1-propanol']};
+const COND_KW={'luz (hν)':/luz|uv|hv|ultraviolet/,'medio acuoso':/acuos|agua|aq|h2o/,'Pt':/pt|pd|ni|platino|niquel|paladio|catalizador/,
+ 'Ni':/pt|pd|ni|platino|niquel|paladio|catalizador/,'H₂SO₄':/h2so4|sulfuric|h\+|medioacido/,'H₂SO₄, calor':/h2so4|sulfuric/,
+ 'etanol, calor':/etanol|alcohol/,'K₂Cr₂O₇, H⁺':/k2cr2o7|kmno4|dicromato|permanganato|oxidante/,'FeCl₃ (o AlCl₃)':/fecl3|alcl3|lewis/,
+ 'NaBH₄':/nabh4|lialh4|reductor|hidruro/};
+const COND_POOL=['luz (hν)','medio acuoso','H₂SO₄, calor','Pt','etanol, calor','K₂Cr₂O₇, H⁺','No necesita','FeCl₃','NaBH₄','H₂SO₄, HgSO₄'];
+function cgrp(s){ if(!s||s==='No necesita')return 'none'; if(/Pt|Ni|Pd/.test(s))return 'met'; if(/Cr₂O₇|MnO₄/.test(s))return 'ox';
+ if(/HgSO₄/.test(s))return 'hg'; if(/H₂SO₄|H⁺/.test(s))return 'acid'; if(/luz/.test(s))return 'luz'; if(/acuoso|H₂O, calor/.test(s))return 'aq';
+ if(/etanol/.test(s))return 'etoh'; if(/FeCl|AlCl/.test(s))return 'lewis'; if(/BH₄|AlH₄/.test(s))return 'hid'; return s;}
+const condOf=x=>x.c||'No necesita';
+
+/* ---------- utilidades ---------- */
+const deac=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'');
+function nf(x){x=deac(String(x)).toLowerCase().replace(/[₀-₉]/g,c=>String(c.charCodeAt(0)-8320)).replace(/⁺/g,'+').replace(/⁻/g,'');
+ return x.replace(/≡/g,'#').replace(/ν/g,'v').replace(/[\s–—\-·*()\[\]]/g,'').replace(/co2/g,'coo');}
+const nfLoose=x=>nf(x).replace(/[=#]/g,'');
+const nn=x=>deac(String(x)).toLowerCase().replace(/^acido\s+/,'').replace(/[\s\-–]/g,'');
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const isOrg=f=>/C(?![lr])/.test(f)&&!/^\d/.test(f)&&!/ \+ /.test(f)&&f!=='CO₂';
+function revForms(f){
+  if(/COO|CO–N|CONH/.test(f)||!/[–=≡]/.test(f))return [];
+  const t=f.split(/([–=≡])/).reverse(); const out=[t.join('')];
+  const m={'OH':'HO','COOH':'HOOC','CHO':'OHC','NH₂':'H₂N','CH₂OH':'HOCH₂'};
+  if(m[t[0]]){const u=t.slice();u[0]=m[t[0]];out.push(u.join(''))} return out;
+}
+function cleanName(n){return n.replace(/\s*\((mayoritario|exceso)\)/g,'').trim()}
+function namesOf(n){let a=n.split(/[()]/).map(z=>z.replace(/mayoritario|exceso|con el koh.*$/gi,'').trim()).filter(z=>z.length>2);
+ a.slice().forEach(z=>(NAME_ALT[z]||[]).forEach(v=>a.push(v))); return a;}
+function compoundCheck(f,n,v,want){ // want: 'any' | 'name' | 'formula'
+  v=v.trim(); if(!v)return 'empty';
+  const forms=[f,...revForms(f),...(FX[f]||[])], names=namesOf(n);
+  const fOk=forms.some(z=>nf(z)===nf(v)), nOk=names.some(z=>nn(z)===nn(v));
+  if((want!=='name'&&fOk)||(want!=='formula'&&nOk))return 'ok';
+  if(want!=='name'&&forms.some(z=>nfLoose(z)===nfLoose(v)))return 'bond';
+  if(want==='name'&&fOk)return 'wantname'; if(want==='formula'&&nOk)return 'wantformula';
+  return 'no';
+}
+function slotVal(x,s){return s==='c'?x.c:x[s[0]][+s[1]][0]}
+function slotCheck(x,s,v){
+  if(s==='c'){if(!v.trim())return 'empty';const re=COND_KW[x.c];return re&&re.test(nf(v))?'ok':'no'}
+  const [f,n]=x[s[0]][+s[1]]; return compoundCheck(f,n,v,'any');
+}
+function checkType(t,v){const a=nn(v);return a.length>=4&&nn(t).startsWith(a.slice(0,Math.min(a.length,6)))}
+function condOptions(x){const ok=condOf(x),g=cgrp(ok);return shuffle([ok,...shuffle(COND_POOL.filter(c=>cgrp(c)!==g)).slice(0,3)])}
+
+/* ---------- estado ---------- */
+const KEY='q2-reac-org-ud4-v2';
+let store={ok:{},fail:{}}; try{const t=JSON.parse(localStorage.getItem(KEY)||'null');if(t&&t.ok)store=t}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}}
+const st={view:'pra',sec:'pau',mode:'falta',resp:'opc',tipo:'Todas',review:false,queue:[],total:0,cur:null};
+const bank=()=>st.sec==='pau'?PAU:AMP;
+const ALL=()=>[...PAU,...AMP];
+const mkey=()=>st.mode==='falta'||st.mode==='nom'?st.mode+'-'+st.resp:st.mode;
+function pool(){
+  let L=bank().filter(x=>st.tipo==='Todas'||x.t===st.tipo);
+  if(st.review)L=bank().filter(x=>store.fail[x.id]);
+  return L;
+}
+function compounds(){
+  const seen={},out=[];
+  pool().forEach(x=>[...x.r,...x.p].forEach(([f,n])=>{if(!isOrg(f))return;const k=nf(f);if(seen[k])return;seen[k]=1;out.push({id:'c:'+k,f,n:cleanName(n),t:x.t})}));
+  return out;
+}
+function solved(id,first){ if(first){store.ok[mkey()+':'+id]=1; delete store.fail[id]} else store.fail[id]=1; save(); renderProg(); }
+
+/* ---------- dibujo de la reacción ---------- */
+function mark(f,re,cls){let h=esc(f); if(!re)return h; return h.replace(new RegExp(re,'g'),m=>`<mark class="${cls}">${m}</mark>`)}
+function rxHTML(x,hide,bonds){
+  const ki=KINFO[x.k]||{};
+  const sp=(arr,pre,i)=>{const [f,n]=arr[i]; if(hide.includes(pre+i))return `<div class="sp"><div class="f hole">?</div><div class="n">¿?</div></div>`;
+    let fh=esc(f); if(bonds){ if(pre==='r'&&isOrg(f))fh=mark(f,ki.hr,'mb'); if(pre==='p'&&i===0)fh=mark(f,ki.hp,'mf'); }
+    return `<div class="sp"><div class="f">${fh}</div><div class="n">${esc(n)}</div></div>`};
+  const R=x.r.map((s,i)=>sp(x.r,'r',i)).join('<div class="op">+</div>');
+  const P=x.p.map((s,i)=>sp(x.p,'p',i)).join('<div class="op">+</div>');
+  const cond=hide.includes('c')?`<div class="cond hole">?</div>`:`<div class="cond">${esc(x.c||'')}</div>`;
+  return `<div class="reaction">${R}<div class="arrow">${cond}<div class="ln">⟶</div></div>${P}</div>`;
+}
+function bondsHTML(x){const ki=KINFO[x.k]; if(!ki||x.k==='nox')return '';
+  return `<div class="bonds"><span><i class="dot mb"></i>Se rompe: ${ki.rompe}</span><span><i class="dot mf"></i>Se forma: ${ki.forma}</span></div>`}
+function explainHTML(x){return `<b>${x.t}${x.rg!=='Ninguna'?' · regla de '+x.rg:''}.</b> ${esc(x.w)}${bondsHTML(x)}`}
+function fb(id,cls,html){const e=document.getElementById(id);e.className='fb show '+cls;e.innerHTML=html}
+function kbHTML(id){return `<div class="kb" data-for="${id}">${['–','=','≡','(',')'].map(k=>`<button type="button" data-k="${k}">${k}</button>`).join('')}</div>`}
+function bindKb(){document.querySelectorAll('.kb').forEach(kb=>kb.onclick=e=>{const b=e.target.closest('button');if(!b)return;
+  const i=document.getElementById(kb.dataset.for);const p=i.selectionStart??i.value.length;i.value=i.value.slice(0,p)+b.dataset.k+i.value.slice(i.selectionEnd??p);i.focus();i.setSelectionRange(p+1,p+1)})}
+function head(extra){const pos=st.total-st.queue.length;
+  return `<div class="qhead"><span class="tag sec">${st.sec==='pau'?'Reacciones de PAU':'Ampliación'}${st.review?' · repaso de falladas':''}${extra||''}</span><span class="prog">${pos} de ${st.total}</span></div>`}
+const P=()=>document.getElementById('play');
+
+/* ---------- MODO 1: ¿Qué falta? ---------- */
+function nextFalta(){
+  if(!st.queue.length)return showDone();
+  const x=st.cur=st.queue.shift();
+  const asks=st.resp==='esc'?x.a.filter(q=>q[0]==='c'||!/ \+ /.test(slotVal(x,q[0]))):x.a;
+  st.ask=asks[Math.floor(Math.random()*asks.length)]; st.phase='slot'; st.first=true; st.fails=0; st.tf=0;
+  const slot=st.ask[0], ans=slotVal(x,slot);
+  let inp;
+  if(st.resp==='opc'){
+    const opts=shuffle([ans,...st.ask[1]]); const txt=slot==='c';
+    inp=`<div class="opts" id="opts">${opts.map(o=>`<button class="opt ${txt?'txt':''}" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div>`;
+  }else{
+    inp=`<div class="wbox"><input id="win" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${slot==='c'?'condición o catalizador':'fórmula o nombre'}"><button class="btn pri" id="bChk">Comprobar</button></div>${slot==='c'?'':kbHTML('win')}
+     <div class="note">${slot==='c'?'Escribe el catalizador o la condición.':'Fórmula semidesarrollada (los números normales: CH3–CH2OH) o nombre IUPAC.'+(/^\d/.test(ans)?' Incluye el coeficiente de ajuste.':'')}</div>`;
+  }
+  const tstep=st.resp==='opc'?`<div class="opts" id="topts">${TYPES[st.sec].map(t=>`<button class="opt txt" data-t="${t}">${t}</button>`).join('')}</div>`
+    :`<div class="wbox"><input id="tin" autocomplete="off" spellcheck="false" placeholder="sustitución, adición…"><button class="btn pri" id="bChk2">Comprobar</button></div>`;
+  P().innerHTML=`${head()}<div class="prompt">${st.resp==='opc'?'¿Cuál es':'Escribe'} ${SLOTNAME[slot]} que falta${st.resp==='opc'?'?':''}</div>
+   <div id="rx">${rxHTML(x,[slot],false)}</div>${inp}<div class="fb" id="fb"></div>
+   <div class="step2" id="step2"><div class="prompt">¿Qué tipo de reacción es?</div>${tstep}<div class="fb" id="fb2"></div></div>
+   <div class="actions" id="acts"><button class="btn hint" id="bHint">Pista</button><button class="btn sec" id="bSol" style="display:none">Ver solución</button><button class="btn sec" id="bSkip">Saltar</button></div>`;
+  document.getElementById('bHint').onclick=()=>{st.first=false;fb('fb','ok',`<b>Pista.</b> ${esc(x.h)}`)};
+  document.getElementById('bSkip').onclick=()=>{st.queue.push(x);nextFalta()};
+  document.getElementById('bSol').onclick=()=>{st.first=false;slotDone(`<b>Solución:</b> <span class="mono">${esc(ans)}</span>.`,'err')};
+  if(st.resp==='opc'){
+    document.querySelectorAll('#opts .opt').forEach(b=>b.onclick=()=>{ if(st.phase!=='slot')return;
+      if(b.dataset.v===ans){b.classList.add('good');slotDone('<b>Correcto.</b> Ahora clasifica la reacción.','ok')}
+      else{st.first=false;b.classList.add('bad');b.disabled=true;fb('fb','err',`<b>No es esa.</b> ${esc(x.h)}`)} });
+    document.querySelectorAll('#topts .opt').forEach(b=>b.onclick=()=>typeTry(b.dataset.t,b));
+  }else{
+    bindKb(); const w=document.getElementById('win'); w.focus(); w.onkeydown=e=>{if(e.key==='Enter')chkW()};
+    document.getElementById('bChk').onclick=chkW;
+    const ti=document.getElementById('tin'); ti.onkeydown=e=>{if(e.key==='Enter')typeTry(ti.value)};
+    document.getElementById('bChk2').onclick=()=>typeTry(ti.value);
+  }
+  function chkW(){ if(st.phase!=='slot')return; const r=slotCheck(x,slot,document.getElementById('win').value); if(r==='empty')return;
+    if(r==='ok')return slotDone(`<b>Correcto.</b> <span class="mono">${esc(ans)}</span>. Ahora clasifica la reacción.`,'ok');
+    st.first=false; st.fails++; if(st.fails>=2)document.getElementById('bSol').style.display='';
+    fb('fb','err',r==='bond'?'<b>Casi.</b> Los átomos están bien, pero revisa el enlace doble (=) o triple (≡).':`<b>No es correcto.</b> ${esc(x.h)}`);
+  }
+}
+function slotDone(msg,cls){
+  const x=st.cur; st.phase='type';
+  document.querySelectorAll('#opts .opt').forEach(o=>o.disabled=true);
+  const w=document.getElementById('win'); if(w){w.disabled=true;document.getElementById('bChk').disabled=true}
+  document.getElementById('rx').innerHTML=rxHTML(x,[],false);
+  fb('fb',cls,msg+(cls==='err'?' Ahora clasifica la reacción.':''));
+  document.getElementById('step2').classList.add('show');
+  document.getElementById('bHint').style.display='none'; document.getElementById('bSol').style.display='none';
+  const ti=document.getElementById('tin'); if(ti)ti.focus();
+}
+function typeTry(v,b){
+  const x=st.cur; if(st.phase!=='type'||!String(v).trim())return;
+  const ok=b?v===x.t:checkType(x.t,v);
+  if(ok){ if(b)b.classList.add('good');
+    document.querySelectorAll('#topts .opt').forEach(o=>o.disabled=true); const ti=document.getElementById('tin'); if(ti)ti.disabled=true;
+    st.phase='done'; solved(x.id,st.first);
+    document.getElementById('rx').innerHTML=rxHTML(x,[],true);
+    fb('fb2','ok',explainHTML(x));
+    document.getElementById('acts').innerHTML=`<button class="btn pri" id="bNext">Siguiente reacción →</button>`;
+    const bn=document.getElementById('bNext'); bn.onclick=nextFalta; bn.focus();
+  }else{ st.first=false; st.tf++; if(b){b.classList.add('bad');b.disabled=true}
+    fb('fb2','err',st.tf>=2&&!b?`<b>No.</b> Es una reacción de <b>${x.t.toLowerCase()}</b>: ${TYPE_TIP[x.t]}`:`<b>No.</b> ${b?esc(v)+': '+TYPE_TIP[v]+' ':''}Fíjate en qué cambia entre reactivos y productos.`);
+  }
+}
+
+/* ---------- MODO 2: Clasifica ---------- */
+function nextCla(){
+  if(!st.queue.length)return showDone();
+  const x=st.cur=st.queue.shift(); st.first=true; st.phase='cla';
+  const grp=(id,title,opts)=>`<div class="cgrp"><div class="ctit">${title}</div><div class="opts sm" id="${id}">${opts.map(o=>`<button class="opt txt" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div></div>`;
+  P().innerHTML=`${head()}<div class="prompt">Clasifica la reacción</div>
+   <div id="rx">${rxHTML(x,['c'],false)}</div>
+   ${grp('gT','1. Tipo de reacción',TYPES[st.sec])}${grp('gR','2. Regla que se aplica',RULES)}${grp('gC','3. Catalizador o condición',condOptions(x))}
+   <div class="fb" id="fb"></div>
+   <div class="actions" id="acts"><button class="btn pri" id="bChk">Comprobar</button><button class="btn sec" id="bSkip">Saltar</button></div>`;
+  ['gT','gR','gC'].forEach(g=>document.querySelectorAll('#'+g+' .opt').forEach(b=>b.onclick=()=>{ if(b.disabled||st.phase!=='cla')return;
+    document.querySelectorAll('#'+g+' .opt').forEach(o=>{if(!o.disabled)o.classList.remove('sel')}); b.classList.add('sel')}));
+  document.getElementById('bSkip').onclick=()=>{st.queue.push(x);nextCla()};
+  document.getElementById('bChk').onclick=()=>{
+    const want={gT:x.t,gR:x.rg,gC:condOf(x)}; let all=true, msgs=[];
+    for(const g of ['gT','gR','gC']){ const s=document.querySelector('#'+g+' .opt.sel'); if(!s){all=false;msgs.push('Te falta elegir una opción en '+({gT:'tipo',gR:'regla',gC:'catalizador'})[g]+'.');continue}
+      if(s.dataset.v===want[g]){s.classList.remove('sel');s.classList.add('good');document.querySelectorAll('#'+g+' .opt').forEach(o=>o.disabled=true)}
+      else{all=false;st.first=false;s.classList.remove('sel');s.classList.add('bad');s.disabled=true;
+        msgs.push(g==='gT'?`Tipo: ${esc(s.dataset.v)} → ${TYPE_TIP[s.dataset.v]}`:g==='gR'?`Regla: ${esc(s.dataset.v)} → ${RULE_TIP[s.dataset.v]}`:`Catalizador: ${esc(s.dataset.v)} no es el de esta reacción. ${esc(x.h)}`)}}
+    if(all){ st.phase='done'; solved(x.id,st.first);
+      document.getElementById('rx').innerHTML=rxHTML(x,[],true); fb('fb','ok',explainHTML(x));
+      document.getElementById('acts').innerHTML=`<button class="btn pri" id="bNext">Siguiente reacción →</button>`; document.getElementById('bNext').onclick=nextCla;
+    } else fb('fb','err','<b>Revisa.</b> '+msgs.join('<br>'));
+  };
+}
+
+/* ---------- MODO 3: Nombra ---------- */
+function nextNom(){
+  if(!st.queue.length)return showDone();
+  const c=st.cur=st.queue.shift(); st.first=true; st.phase='nom'; st.fails=0;
+  const dir=st.dir=Math.random()<.5?'f2n':'n2f';
+  const all=compounds(); const root=s=>(nn(s).match(/(met|et|prop|but|pent|hex|ciclohex|benc)/)||[''])[0];
+  const sim=o=>(nn(o.n).slice(-3)===nn(c.n).slice(-3)?2:0)+(root(o.n)===root(c.n)?1:0)+Math.random();
+  const dis=all.filter(o=>o.id!==c.id&&nn(o.n)!==nn(c.n)).sort((a,b)=>sim(b)-sim(a)).slice(0,3);
+  const q=dir==='f2n'?`<div class="big mono">${esc(c.f)}</div>`:`<div class="big">${esc(c.n)}</div>`;
+  let inp;
+  if(st.resp==='opc'){ const opts=shuffle([c,...dis]);
+    inp=`<div class="opts" id="opts">${opts.map(o=>`<button class="opt ${dir==='f2n'?'txt':''}" data-v="${esc(o.id)}">${esc(dir==='f2n'?o.n:o.f)}</button>`).join('')}</div>`;
+  }else inp=`<div class="wbox"><input id="win" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${dir==='f2n'?'nombre IUPAC':'fórmula semidesarrollada'}"><button class="btn pri" id="bChk">Comprobar</button></div>${dir==='n2f'?kbHTML('win'):''}`;
+  P().innerHTML=`${head(' · nombra')}<div class="prompt">${dir==='f2n'?'¿Cómo se llama este compuesto?':'¿Cuál es la fórmula semidesarrollada?'}</div>
+   <div class="qbox">${q}</div>${inp}<div class="fb" id="fb"></div>
+   <div class="actions" id="acts"><button class="btn sec" id="bSol" style="display:none">Ver solución</button><button class="btn sec" id="bSkip">Saltar</button></div>`;
+  const sol=()=>`<span class="mono">${esc(c.f)}</span> = ${esc(c.n)}`;
+  const done=(ok,msg)=>{st.phase='done'; solved(c.id,st.first&&ok); fb('fb',ok?'ok':'err',msg);
+    document.getElementById('acts').innerHTML=`<button class="btn pri" id="bNext">Siguiente →</button>`; const bn=document.getElementById('bNext'); bn.onclick=nextNom; bn.focus()};
+  document.getElementById('bSkip').onclick=()=>{st.queue.push(c);nextNom()};
+  document.getElementById('bSol').onclick=()=>{st.first=false;done(false,'<b>Solución:</b> '+sol())};
+  if(st.resp==='opc'){
+    document.querySelectorAll('#opts .opt').forEach(b=>b.onclick=()=>{ if(st.phase!=='nom')return;
+      if(b.dataset.v===c.id){b.classList.add('good');document.querySelectorAll('#opts .opt').forEach(o=>o.disabled=true);done(true,'<b>Correcto.</b> '+sol())}
+      else{st.first=false;b.classList.add('bad');b.disabled=true;fb('fb','err','<b>No.</b> Revisa la cadena principal, el grupo funcional y los localizadores.')}});
+  }else{ bindKb(); const w=document.getElementById('win'); w.focus();
+    const chk=()=>{ if(st.phase!=='nom')return; const r=compoundCheck(c.f,c.n,w.value,dir==='f2n'?'name':'formula'); if(r==='empty')return;
+      if(r==='ok'){w.disabled=true;return done(true,'<b>Correcto.</b> '+sol())}
+      st.first=false; st.fails++; if(st.fails>=2)document.getElementById('bSol').style.display='';
+      fb('fb','err',r==='bond'?'<b>Casi.</b> Revisa el enlace doble (=) o triple (≡).':r==='wantname'?'Has escrito la fórmula: aquí se pide el <b>nombre</b>.':r==='wantformula'?'Has escrito el nombre: aquí se pide la <b>fórmula</b>.':'<b>No.</b> Revisa la cadena principal, el grupo funcional y los localizadores.')};
+    w.onkeydown=e=>{if(e.key==='Enter')chk()}; document.getElementById('bChk').onclick=chk;
+  }
+}
+
+/* ---------- MODO 4: Simulacro ---------- */
+function startSim(){
+  const B=shuffle(bank()); const byK={}, pick=[];
+  B.forEach(x=>{if(!byK[x.k]&&pick.length<10){byK[x.k]=1;pick.push(x)}});
+  B.forEach(x=>{if(pick.length<10&&!pick.includes(x))pick.push(x)});
+  st.sim={list:shuffle(pick),i:0,ans:[]}; drawSim();
+}
+function drawSim(){
+  const S=st.sim, x=S.list[S.i], ans=x.p[0][0];
+  const pa=x.a.find(q=>q[0]==='p0'); const dist=pa?pa[1]:[];
+  const sel=(id,opts)=>`<select id="${id}"><option value="">Elige…</option>${opts.map(o=>`<option>${esc(o)}</option>`).join('')}</select>`;
+  const prod=st.resp==='opc'?`<div class="opts" id="opts">${shuffle([ans,...dist]).map(o=>`<button class="opt" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div>`
+    :`<div class="wbox"><input id="win" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="fórmula o nombre"></div>${kbHTML('win')}`;
+  P().innerHTML=`<div class="qhead"><span class="tag">Simulacro de examen · ${st.sec==='pau'?'PAU':'Ampliación'}</span><span class="prog">Reacción ${S.i+1} de ${S.list.length}</span></div>
+   <div class="prompt">Completa la reacción</div>
+   <div id="rx">${rxHTML(x,['p0','c'],false)}</div>
+   <div class="ctit">Producto principal</div>${prod}
+   <div class="simgrid"><label>Tipo${sel('sT',TYPES[st.sec])}</label><label>Catalizador o condición${sel('sC',condOptions(x))}</label><label>Regla${sel('sR',RULES)}</label></div>
+   <div class="actions"><button class="btn pri" id="bNext">${S.i<S.list.length-1?'Siguiente →':'Terminar y corregir'}</button></div>`;
+  let pv='';
+  if(st.resp==='opc')document.querySelectorAll('#opts .opt').forEach(b=>b.onclick=()=>{document.querySelectorAll('#opts .opt').forEach(o=>o.classList.remove('sel'));b.classList.add('sel');pv=b.dataset.v});
+  else bindKb();
+  document.getElementById('bNext').onclick=()=>{
+    const v=st.resp==='opc'?pv:document.getElementById('win').value;
+    S.ans.push({x,p:v,t:document.getElementById('sT').value,c:document.getElementById('sC').value,r:document.getElementById('sR').value});
+    S.i++; if(S.i<S.list.length)drawSim(); else endSim();
+  };
+}
+function endSim(){
+  let tot=0;
+  const rows=st.sim.ans.map((a,i)=>{const x=a.x;
+    const pOk=st.resp==='opc'?a.p===x.p[0][0]:compoundCheck(x.p[0][0],x.p[0][1],a.p||'','any')==='ok';
+    const tOk=a.t===x.t, cOk=a.c===condOf(x), rOk=a.r===x.rg;
+    const pts=(pOk?.4:0)+(tOk?.2:0)+(cOk?.2:0)+(rOk?.2:0); tot+=pts;
+    store.ok['sim:'+x.id]=pts===1?1:store.ok['sim:'+x.id]; if(pts<1)store.fail[x.id]=1;
+    const it=(ok,lab,yours,right)=>`<li class="${ok?'g':'b'}">${ok?'✔':'✘'} ${lab}: ${ok?esc(right):`<s>${esc(yours||'sin respuesta')}</s> → ${esc(right)}`}</li>`;
+    return `<div class="simrow"><div class="simn">${i+1}</div><div>${rxHTML(x,[],true)}<ul class="chk">${it(pOk,'Producto',a.p,x.p[0][0]+' ('+cleanName(x.p[0][1])+')')}${it(tOk,'Tipo',a.t,x.t)}${it(cOk,'Catalizador',a.c,condOf(x))}${it(rOk,'Regla',a.r,x.rg)}</ul><div class="small">${esc(x.w)}</div></div></div>`}).join('');
+  save(); renderProg();
+  const nota=(tot).toFixed(1).replace('.',',');
+  P().innerHTML=`<div class="done"><div class="tag">Simulacro terminado</div><h2>Nota: ${nota} / 10</h2>
+   <p class="small">Cada reacción vale 1 punto: producto 0,4 · tipo 0,2 · catalizador 0,2 · regla 0,2. Las reacciones con algún fallo pasan a «falladas» para repasarlas.</p>
+   <div class="actions" style="justify-content:center"><button class="btn pri" id="bAgain">Otro simulacro</button></div></div>${rows}`;
+  document.getElementById('bAgain').onclick=startSim;
+}
+
+/* ---------- final de serie ---------- */
+function showDone(){
+  const nf_=Object.keys(store.fail).filter(id=>bank().some(x=>x.id===id)).length;
+  P().innerHTML=`<div class="done"><h2>${st.review?'Repaso terminado':'Has terminado la serie'}</h2>
+   <p>${st.total?'':'No hay reacciones en esta selección.'} Reacciones falladas pendientes en este apartado: <b>${nf_}</b>.</p>
+   <div class="actions" style="justify-content:center"><button class="btn pri" id="bAgain">Repetir</button>${nf_&&st.mode!=='nom'?'<button class="btn hint" id="bRev">Repasar falladas</button>':''}</div></div>`;
+  document.getElementById('bAgain').onclick=()=>{st.review=false;begin()};
+  const r=document.getElementById('bRev'); if(r)r.onclick=()=>{st.review=true;begin()};
+}
+
+/* ---------- teoría y progreso ---------- */
+function renderTheory(){
+  const rows=Object.keys(KINFO).filter(k=>+k).map(k=>{const K=KINFO[k];const t=PAU.find(x=>x.k==k).t;
+    return `<tr><td>${k}</td><td><b>${t}</b><br><span class="small">${K.n}</span></td><td class="m">${K.g}</td><td class="small">Se rompe: ${K.rompe}<br>Se forma: ${K.forma}</td></tr>`}).join('');
+  document.getElementById('vTeo').innerHTML=`<h2 class="h2">Las 16 reacciones de la PAU</h2>
+   <div class="tblwrap"><table class="reftab"><tr><th>#</th><th>Tipo</th><th>Reacción general</th><th>Enlaces</th></tr>${rows}</table></div>
+   <div class="rules">
+    <div class="rule"><h3>Regla de Markovnikov</h3><p>En la adición de HX o H₂O a un doble (o triple) enlace asimétrico, el <b>H</b> se une al carbono del doble enlace que <b>ya tiene más H</b>; el X o el OH va al otro.</p>
+     <p class="mono">CH₂=CH–CH₃ + HBr → CH₃–CHBr–CH₃</p><p class="small">Si el alqueno es simétrico (eteno, but-2-eno) solo hay un producto y no hace falta aplicarla.</p></div>
+    <div class="rule"><h3>Regla de Saytzev</h3><p>En una eliminación, el <b>H</b> sale del carbono vecino que <b>tiene menos H</b>: se forma mayoritariamente el alqueno <b>más sustituido</b>.</p>
+     <p class="mono">CH₃–CHOH–CH₂–CH₃ → CH₃–CH=CH–CH₃ + H₂O</p><p class="small">Si los carbonos vecinos son equivalentes (etanol, propan-2-ol, pentan-3-ol) solo hay un alqueno posible.</p></div>
+   </div>
+   <h3 class="h3">Pistas para reconocer el tipo</h3>
+   <ul class="small"><li>Se cambia un átomo o grupo por otro → <b>sustitución</b>.</li><li>Desaparece un doble o triple enlace → <b>adición</b>.</li>
+   <li>Aparece un doble enlace y sale una molécula pequeña (H₂O, HX) → <b>eliminación</b>.</li><li>Se unen dos moléculas y sale agua → <b>condensación</b>.</li>
+   <li>Con O₂ y salen CO₂ + H₂O → <b>combustión</b>.</li><li>Con K₂Cr₂O₇ o KMnO₄: el compuesto gana O o pierde H → <b>oxidación</b>.</li><li>Con H₂ y catalizador sobre un C=O → <b>reducción</b>.</li>
+   <li>Mismo KOH, distinto resultado: en agua → sustitución (alcohol); en etanol y calor → eliminación (alqueno).</li></ul>`;
+}
+function renderProgView(){
+  const B=bank(), T=TYPES[st.sec].filter(t=>B.some(x=>x.t===t));
+  const dom=x=>Object.keys(store.ok).some(k=>k.endsWith(':'+x.id)&&!k.startsWith('nom'));
+  const rows=T.map(t=>{const L=B.filter(x=>x.t===t),d=L.filter(dom).length,f=L.filter(x=>store.fail[x.id]).length;
+    return `<tr><td><b>${t}</b></td><td>${L.length}</td><td style="white-space:nowrap"><div class="minibar"><i style="width:${d/L.length*100}%"></i></div>${d}</td><td>${f?`<span class="badf">${f}</span>`:'0'}</td></tr>`}).join('');
+  const nf_=B.filter(x=>store.fail[x.id]).length;
+  document.getElementById('vPro').innerHTML=`<h2 class="h2">Progreso · ${st.sec==='pau'?'Reacciones de PAU':'Ampliación'}</h2>
+   <p class="small">Dominada: resuelta a la primera, sin pista, en «¿Qué falta?», «Clasifica» o en un simulacro. Fallada: la que se ha fallado y aún no se ha resuelto a la primera.</p>
+   <div class="tblwrap"><table class="reftab"><tr><th>Tipo</th><th>Total</th><th>Dominadas</th><th>Falladas</th></tr>${rows}</table></div>
+   <div class="actions"><button class="btn pri" id="bRev2" ${nf_?'':'disabled'}>Repasar falladas (${nf_})</button><button class="btn sec" id="bDel">Borrar el progreso de este apartado</button></div>`;
+  document.getElementById('bRev2').onclick=()=>{st.review=true;if(st.mode==='nom'||st.mode==='sim')st.mode='falta';setView('pra');syncSeg();begin()};
+  document.getElementById('bDel').onclick=()=>{B.forEach(x=>{delete store.fail[x.id];Object.keys(store.ok).forEach(k=>{if(k.endsWith(':'+x.id))delete store.ok[k]})});
+    compounds().forEach(c=>Object.keys(store.ok).forEach(k=>{if(k.endsWith(':'+c.id))delete store.ok[k]}));save();renderProgView();renderProg()};
+}
+function renderProg(){
+  let L,ok;
+  if(st.mode==='nom'){L=compounds();} else L=bank().filter(x=>st.tipo==='Todas'||x.t===st.tipo);
+  ok=L.filter(x=>store.ok[mkey()+':'+x.id]).length;
+  const lab={falta:'resueltas a la primera',cla:'clasificadas a la primera',nom:'nombrados a la primera',sim:'reacciones perfectas en simulacros'}[st.mode];
+  document.getElementById('progTxt').textContent=`${st.mode==='nom'?'Compuestos':'Reacciones'} ${lab}: ${ok} de ${L.length}`;
+  document.getElementById('progBar').style.width=(L.length?ok/L.length*100:0)+'%';
+}
+
+/* ---------- controles ---------- */
+function syncSeg(){
+  document.querySelectorAll('#segMode button').forEach(b=>b.classList.toggle('on',b.dataset.m===st.mode));
+  document.querySelectorAll('#segResp button').forEach(b=>b.classList.toggle('on',b.dataset.r===st.resp));
+  document.getElementById('rowResp').style.display=st.mode==='cla'?'none':'';
+  document.getElementById('rowTipo').style.display=st.mode==='sim'?'none':'';
+}
+function renderChips(){
+  const tipos=['Todas',...TYPES[st.sec].filter(t=>bank().some(x=>x.t===t))];
+  document.getElementById('chips').innerHTML=tipos.map(t=>`<button class="chip ${t===st.tipo&&!st.review?'on':''}" data-t="${t}">${t}</button>`).join('');
+}
+function begin(){
+  syncSeg(); renderChips(); renderProg();
+  if(st.mode==='sim')return startSim();
+  const L=st.mode==='nom'?compounds():pool();
+  st.queue=shuffle(L); st.total=L.length;
+  if(st.review&&!L.length){P().innerHTML=`<div class="done"><h2>No tienes reacciones falladas pendientes</h2><p>¡Bien! Elige otro modo o tipo.</p></div>`;st.review=false;return}
+  ({falta:nextFalta,cla:nextCla,nom:nextNom})[st.mode]();
+}
+function setView(v){st.view=v;document.querySelectorAll('#segView button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  document.getElementById('vPra').style.display=v==='pra'?'':'none';document.getElementById('vTeo').style.display=v==='teo'?'':'none';document.getElementById('vPro').style.display=v==='pro'?'':'none';document.getElementById('vPraCtl').style.display=v==='pra'?'':'none';
+  if(v==='teo')renderTheory(); if(v==='pro')renderProgView(); window.scrollTo(0,0)}
+document.getElementById('segView').onclick=e=>{const b=e.target.closest('button');if(b)setView(b.dataset.v)};
+document.getElementById('segSec').onclick=e=>{const b=e.target.closest('button');if(!b)return;st.sec=b.dataset.s;st.tipo='Todas';st.review=false;
+  document.querySelectorAll('#segSec button').forEach(x=>x.classList.toggle('on',x===b)); if(st.view==='pro')renderProgView(); begin()};
+document.getElementById('segMode').onclick=e=>{const b=e.target.closest('button');if(!b)return;st.mode=b.dataset.m;st.review=false;begin()};
+document.getElementById('segResp').onclick=e=>{const b=e.target.closest('button');if(!b)return;st.resp=b.dataset.r;begin()};
+document.getElementById('chips').onclick=e=>{const b=e.target.closest('button');if(!b)return;st.tipo=b.dataset.t;st.review=false;begin()};
+begin();
+
+</script>
+</body>
+</html>
